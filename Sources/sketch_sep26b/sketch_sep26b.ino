@@ -2,6 +2,7 @@
 #include <MFRC522.h>
 
 #include "Data_Base.h"
+#include "Terminal.h"
 
 #define SS_PIN 5
 #define RST_PIN 21
@@ -11,6 +12,7 @@ MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::StatusCode status;
 
 Data_Base data_base;
+Terminal terminal;
 
 void setup() {
   Serial.begin(9600); // Инициализация Serial-порта
@@ -30,6 +32,11 @@ void setup() {
 }
 
 void loop() { 
+
+  std::string cmd = terminal.read_command();
+  if (cmd.length() > 0) {
+      terminal.process_command(cmd);
+  }
 
   static uint32_t rebootTimer = millis(); // Важный костыль против зависания модуля!
   if (millis() - rebootTimer >= 1000) {   // Таймер с периодом 1000 мс
