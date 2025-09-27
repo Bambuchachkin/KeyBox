@@ -1,0 +1,3 @@
+https://github.com/ljos/MFRC522/blob/master/MFRC522.h
+
+https://alexgyver.ru/arduino-rfid/
