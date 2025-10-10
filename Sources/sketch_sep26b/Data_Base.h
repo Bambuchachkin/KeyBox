@@ -8,15 +8,22 @@
 
 class Data_Base {
   private:
-    std::map<uint8_t, Person*> person_data;
+    std::map<std::vector<uint8_t>, Person*> person_data;
   public:
     Data_Base();
     ~Data_Base();
 
-    bool add_person(uint8_t person_UID);
-    bool delete_person(uint8_t person_UID);
+    auto find_person(std::vector<uint8_t> person_UID);
+    auto find_person(std::string person_name);
+
+    auto get_map_end();
+
+    bool add_person(std::vector<uint8_t> person_UID);
+    bool delete_person(std::vector<uint8_t> person_UID);
 
     void print_persons_data();
 };
+
+bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);
 
 #endif

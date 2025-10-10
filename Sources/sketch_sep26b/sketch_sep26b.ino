@@ -7,12 +7,11 @@
 #define SS_PIN 5
 #define RST_PIN 21
 
-// Создаем объект MFRC522
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::StatusCode status;
 
-Data_Base data_base;
 Terminal terminal;
+std::vector<uint8_t> received_UID;
 
 void setup() {
   Serial.begin(9600); // Инициализация Serial-порта
@@ -24,17 +23,14 @@ void setup() {
   mfrc522.PCD_AntennaOn();            // Включаем антенну
 
   delay(5000);
+  Serial.print("\n");
   Serial.println("Inicialization saccess");
-
-  data_base.add_person(0x12);  // Пример добавления пользователя
-  data_base.add_person(0x34);
-  data_base.print_persons_data();
 }
 
 void loop() { 
 
-  std::string cmd = terminal.read_command();
-  if (cmd.length() > 0) {
+  std::vector<std::string> cmd = terminal.read_command();
+  if (cmd.size() > 0) {
       terminal.process_command(cmd);
   }
 
@@ -50,16 +46,13 @@ void loop() {
   if (!mfrc522.PICC_IsNewCardPresent()) return; // Проверяем, поднесена ли новая метка. Если нет, выходим из loop и проверяем снова
   if (!mfrc522.PICC_ReadCardSerial()) return; // Пытаемся прочитать данные метки. Если не удалось, выходим из loop
 
-  // Выводим UID метки в шестнадцатеричном формате
-  Serial.print("UID метки: ");
+  received_UID.clear();
   for (uint8_t  i = 0; i < mfrc522.uid.size; i++) {
-    Serial.print("0x");
-    // Serial.print(mfrc522.uid.uidByte[i] < 0x10 ? " 0" : " ");
-    Serial.print(mfrc522.uid.uidByte[i], HEX);
-    Serial.print(", ");
+    received_UID.push_back(mfrc522.uid.uidByte[i]);
   }
-  Serial.println();
 
+  terminal.buffer_UID(received_UID);
+  
   // Останавливаем работу с меткой
   // mfrc522.PICC_HaltA();
   delay(1000);

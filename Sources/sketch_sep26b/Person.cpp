@@ -1,13 +1,23 @@
 #include <Arduino.h>
 #include "Person.h"
 
-Person::Person(uint8_t person_UID){
-  UID = person_UID;
-  Serial.print("Person::Person()\n");
+Person::Person(std::vector<uint8_t> person_UID){
+  for (int i =0; i<person_UID.size(); i++){
+    UID.push_back(person_UID[i]);
+  }
+  // Serial.print("Person::Person()\n");
 }
 
 Person::~Person(){
-  Serial.print("Person::~Person()\n");
+  // Serial.print("Person::~Person()\n");
+}
+
+void Person::rename(std::string new_name){
+  name = new_name;
+}
+
+std::string Person::get_name(){
+  return name;
 }
 
 bool Person::add_key_access(int key_number){
@@ -84,7 +94,12 @@ bool Person::return_key(int key_number){
 
 void Person::print_info(){
   Serial.print("Person UID: ");
-  Serial.print(UID);
+  for (int i =0; i<UID.size(); i++){
+    Serial.print(UID[i]);
+    Serial.print(' ');
+  }
+  Serial.print(" | Person name: ");
+  Serial.print(name.c_str());
   Serial.print(" | Available keys: ");
   for (auto it = keys.begin(); it != keys.end(); it++){
     if (it->second == 1 || it->second == 2){

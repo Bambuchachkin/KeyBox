@@ -4,14 +4,20 @@
 #include <string>
 #include <map>
 #include <vector>
+#include <string>
 
 class Person {
   private:
-    uint8_t UID;
+    std::vector<uint8_t> UID;
+    std::string name = "none";
+    // uint8_t UID;
     std::map<int, int> keys;
   public:
-    Person(uint8_t person_UID);
+    Person(std::vector<uint8_t> person_UID);
     ~Person();
+
+    void rename(std::string new_name);
+    std::string get_name();
 
     bool add_key_access(int key_number);
     bool remove_key_access(int key_number);
