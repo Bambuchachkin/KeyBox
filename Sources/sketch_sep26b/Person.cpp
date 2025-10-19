@@ -1,10 +1,14 @@
 #include <Arduino.h>
 #include "Person.h"
 
+int Person::P_NUMBER = 0;
+
 Person::Person(std::vector<uint8_t> person_UID){
   for (int i =0; i<person_UID.size(); i++){
     UID.push_back(person_UID[i]);
   }
+  P_NUMBER++;
+  p_number = P_NUMBER;
   // Serial.print("Person::Person()\n");
 }
 
@@ -13,11 +17,17 @@ Person::~Person(){
 }
 
 void Person::rename(std::string new_name){
-  name = new_name;
+  if (new_name!=""){
+    name = new_name;
+  }
 }
 
 std::string Person::get_name(){
   return name;
+}
+
+int Person::get_person_number(){
+  return p_number;
 }
 
 bool Person::add_key_access(int key_number){

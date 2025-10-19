@@ -10,7 +10,8 @@ class Person {
   private:
     std::vector<uint8_t> UID;
     std::string name = "none";
-    // uint8_t UID;
+    int p_number;
+    static int P_NUMBER;
     std::map<int, int> keys;
   public:
     Person(std::vector<uint8_t> person_UID);
@@ -18,6 +19,7 @@ class Person {
 
     void rename(std::string new_name);
     std::string get_name();
+    int get_person_number();
 
     bool add_key_access(int key_number);
     bool remove_key_access(int key_number);

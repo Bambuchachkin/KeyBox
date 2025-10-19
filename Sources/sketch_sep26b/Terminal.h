@@ -17,7 +17,7 @@ class Terminal {
     ~Terminal();
 
     void process_add(std::string new_user);
-    void process_info(std::string who);
+    void process_info(std::vector<std::string> command);
     void process_check(std::string who);
     void process_delete(std::string who);
     void process_help();

@@ -24,12 +24,21 @@ void Terminal::process_add(std::string new_user){
   }
 }
 
-void Terminal::process_info(std::string who){
-  if (!who.length()) return;
-  if (who == "ALL"){
+void Terminal::process_info(std::vector<std::string> command){
+  if (!command[1].size()) return;
+  if (command[1] == "ALL"){
     data_base.print_persons_data();
   } else {
-    Serial.print("Try to use 'help'\n");
+    std::string p_name="";
+    for (int i=1; i< command.size()-1; i++){
+      p_name+=command[i]; // собираем имя в единую строку
+      p_name+=" ";
+    }
+    p_name+=command[command.size()-1];
+    // Serial.print(p_name.c_str());
+    // Serial.print("\n");
+    data_base.print_persons_data(p_name);
+    // Serial.print("Try to use 'help'\n");
   }
 }
 
@@ -78,20 +87,28 @@ void Terminal::process_check(std::string who){
 void Terminal::process_help(){
   Serial.print("Commands list:\n");
   Serial.print("'add [THIS]' too add new person\n");
-  Serial.print("'delete [Ivanov Ivan Ivanovich]' too view persons data\n");
-  Serial.print("'info [ALL]' too view persons data\n");
+  Serial.print("'delete [person number]' too view persons data\n");
+  Serial.print("'info [ALL; person name]' too view persons data\n");
   Serial.print("'check [buffer; voltage]' too view sm\n");
 }
 
-void Terminal::process_delete(std::string who){
+void Terminal::process_delete(std::string p_number){
+  for (int i = 0; i< p_number.length(); i++){
+    if(!isDigit(p_number[i])){
+      Serial.print("incorrect symbol\n");
+      return;
+    }
+  }
   Serial.print("Trying to delete person: ");
-  Serial.print(who.c_str());
+  Serial.print(p_number.c_str());
   Serial.print('\n');
 
-  // auto it = data_base.find_person(who);
-  // if (it != data_base.get_map_end()){
-  //   data_base.delete_person(it->first);
-  // }
+  if(data_base.delete_person(std::stoi(p_number))){
+    Serial.print("Successful deletion\n");
+  } else {
+    Serial.print("Deletion error\n");
+  }
+
   // data_base.delete_person(std::vector<uint8_t> person_UID)
 }
 
@@ -112,7 +129,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     return;
   }
   if (command == "info"){
-    process_info(commands[1]);
+    process_info(commands);
     return;
   }
   if (command == "check"){
