@@ -114,6 +114,12 @@ void Terminal::process_delete(std::string p_number){
 
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
+  Serial.print(">>");
+  for (auto i = commands.begin(); i!= commands.end(); i++){
+    Serial.print(" ");
+    Serial.print(i->data());
+  }
+  Serial.print(":\n");
   if (commands.size() == 1){
     if (commands[0] == "help"){
       process_help();
