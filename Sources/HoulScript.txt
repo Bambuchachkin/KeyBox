@@ -17,6 +17,7 @@ std::vector<uint8_t> received_UID;
 void setup() {
   Serial.begin(9600); // Инициализация Serial-порта
   SPI.begin();          // Инициализация шины SPI
+
   mfrc522.PCD_Init();   // Инициализация RFID-модуля
 
   pinMode(ANALOG_PIN, INPUT);  // Настройка аналогового пина как вход
@@ -55,13 +56,13 @@ void loop() {
     received_UID.push_back(mfrc522.uid.uidByte[i]);
   }
 
+
   terminal.buffer_UID(received_UID);
   
   // Останавливаем работу с меткой
   // mfrc522.PICC_HaltA();
   delay(1000);
 }
-
 #ifndef DATA_BASE_H
 #define DATA_BASE_H
 
@@ -94,7 +95,6 @@ class Data_Base {
 bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);
 
 #endif
-
 #include <iterator>
 #include <Arduino.h>
 #include "Data_Base.h"
@@ -270,8 +270,6 @@ void Data_Base::print_persons_data(std::string p_name){
 }
 
 
-
-
 #ifndef PERSON_H
 #define PERSON_H
 
@@ -309,7 +307,6 @@ class Person {
 };
 
 #endif
-
 #include <Arduino.h>
 #include "Person.h"
 
@@ -440,7 +437,6 @@ void Person::print_info(){
 }
 
 
-
 #ifndef TERMINAL_H
 #define TERMINAL_H
 
@@ -449,11 +445,13 @@ void Person::print_info(){
 #include <vector>
 
 #include "Data_Base.h"
+#include "CSVHandler.h"
 
 class Terminal {
   private:
     Data_Base data_base;
     std::vector<uint8_t> buffered_UID;
+    CSVHandler csvHandler;
     // std::map<std::string, std::string> HELP;
   public:
     Terminal();
@@ -464,6 +462,7 @@ class Terminal {
     void process_check(std::string who);
     void process_delete(std::string who);
     void process_help();
+    void process_CSV_read();
 
     void process_command(std::vector<std::string> commands);
     void buffer_UID(std::vector<uint8_t>& new_UID);
@@ -471,7 +470,6 @@ class Terminal {
 };
 
 #endif
-
 #include <iterator>
 #include <Arduino.h>
 #include "Terminal.h"
@@ -586,6 +584,11 @@ void Terminal::process_delete(std::string p_number){
   // data_base.delete_person(std::vector<uint8_t> person_UID)
 }
 
+void Terminal::process_CSV_read(){
+  csvHandler.activateCSVMode();
+  csvHandler.checkSerial();
+}
+
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
   Serial.print(">>");
@@ -594,7 +597,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if (commands.size() == 1){
+  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -618,6 +621,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "delete"){
     process_delete(commands[1]);
+    return;
+  }
+  if (command == "START_CSV_UPLOAD"){
+    process_CSV_read();
     return;
   } else {
     Serial.print("Unknown command\n");
@@ -665,4 +672,75 @@ void Terminal::buffer_UID(std::vector<uint8_t>& new_UID){
 }
 
 
+#ifndef CSVHANDLER_H
+#define CSVHANDLER_H
 
+#include <Arduino.h>
+
+class CSVHandler {
+private:
+    String _content;
+    bool _receiving;
+    
+public:
+    CSVHandler();
+    void checkSerial();
+    void startReceiving();
+    bool isReceiving();
+    void activateCSVMode();  // Публичный метод для активации
+
+private:
+    void printContent();
+};
+
+#endif
+#include "CSVHandler.h"
+
+CSVHandler::CSVHandler() : _receiving(false) {}
+
+bool CSVHandler::isReceiving() {
+    return _receiving;
+}
+
+void CSVHandler::activateCSVMode() {
+    startReceiving();
+}
+
+void CSVHandler::checkSerial() {
+    if (!_receiving) return;
+    
+    // ЗАЩИТА ОТ ПЕРЕПОЛНЕНИЯ
+    if (_content.length() > 10000) { // Максимум 10KB
+        _receiving = false;
+        Serial.println("BUFFER_OVERFLOW");
+        _content = "";
+        return;
+    }
+    
+    if (Serial.available()) {
+        String input = Serial.readString();
+
+        
+        if (input.indexOf("END_CSV_FILE") >= 0) {
+            _receiving = false;
+            Serial.println("CSV_FILE_RECEIVED");
+            printContent();
+            _content = "";
+            Serial.println("CSV_FILE_DELETED");
+        } else {
+            _content += input;
+        }
+    }
+}
+
+void CSVHandler::startReceiving() {
+    _content = "";
+    _receiving = true;
+    Serial.println("READY_FOR_CSV");
+}
+
+void CSVHandler::printContent() {
+    Serial.println("=== CSV CONTENT ===");
+    Serial.println(_content);
+    Serial.println("===================");
+}

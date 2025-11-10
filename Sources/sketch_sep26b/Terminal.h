@@ -6,11 +6,13 @@
 #include <vector>
 
 #include "Data_Base.h"
+#include "CSVHandler.h"
 
 class Terminal {
   private:
     Data_Base data_base;
     std::vector<uint8_t> buffered_UID;
+    CSVHandler csvHandler;
     // std::map<std::string, std::string> HELP;
   public:
     Terminal();
@@ -21,6 +23,7 @@ class Terminal {
     void process_check(std::string who);
     void process_delete(std::string who);
     void process_help();
+    void process_CSV_read();
 
     void process_command(std::vector<std::string> commands);
     void buffer_UID(std::vector<uint8_t>& new_UID);

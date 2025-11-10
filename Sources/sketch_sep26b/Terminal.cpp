@@ -112,6 +112,11 @@ void Terminal::process_delete(std::string p_number){
   // data_base.delete_person(std::vector<uint8_t> person_UID)
 }
 
+void Terminal::process_CSV_read(){
+  csvHandler.activateCSVMode();
+  csvHandler.checkSerial();
+}
+
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
   Serial.print(">>");
@@ -120,7 +125,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if (commands.size() == 1){
+  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -144,6 +149,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "delete"){
     process_delete(commands[1]);
+    return;
+  }
+  if (command == "START_CSV_UPLOAD"){
+    process_CSV_read();
     return;
   } else {
     Serial.print("Unknown command\n");

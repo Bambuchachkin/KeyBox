@@ -13,8 +13,17 @@ void CSVHandler::activateCSVMode() {
 void CSVHandler::checkSerial() {
     if (!_receiving) return;
     
+    // ЗАЩИТА ОТ ПЕРЕПОЛНЕНИЯ
+    if (_content.length() > 10000) { // Максимум 10KB
+        _receiving = false;
+        Serial.println("BUFFER_OVERFLOW");
+        _content = "";
+        return;
+    }
+    
     if (Serial.available()) {
         String input = Serial.readString();
+
         
         if (input.indexOf("END_CSV_FILE") >= 0) {
             _receiving = false;

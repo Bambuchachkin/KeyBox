@@ -3,7 +3,6 @@
 
 #include "Data_Base.h"
 #include "Terminal.h"
-#include "CSVHandler.h"  // Добавляем новый заголовок
 
 #define SS_PIN 5
 #define RST_PIN 21
@@ -12,13 +11,13 @@
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 MFRC522::StatusCode status;
 
-CSVHandler csvHandler;  // Добавляем экземпляр CSVHandler
 Terminal terminal;
 std::vector<uint8_t> received_UID;
 
 void setup() {
   Serial.begin(9600); // Инициализация Serial-порта
   SPI.begin();          // Инициализация шины SPI
+
   mfrc522.PCD_Init();   // Инициализация RFID-модуля
 
   pinMode(ANALOG_PIN, INPUT);  // Настройка аналогового пина как вход
@@ -40,9 +39,6 @@ void loop() {
   }
   delay(100);
 
-  // 2. Проверяем входящие CSV файлы (работает параллельно)
-  csvHandler.checkSerial();
-
   static uint32_t rebootTimer = millis(); // Важный костыль против зависания модуля!
   if (millis() - rebootTimer >= 1000) {   // Таймер с периодом 1000 мс
     rebootTimer = millis();               // Обновляем таймер
@@ -59,6 +55,7 @@ void loop() {
   for (uint8_t  i = 0; i < mfrc522.uid.size; i++) {
     received_UID.push_back(mfrc522.uid.uidByte[i]);
   }
+
 
   terminal.buffer_UID(received_UID);
   
