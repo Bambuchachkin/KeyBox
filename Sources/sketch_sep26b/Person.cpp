@@ -127,3 +127,12 @@ void Person::print_info(){
   Serial.print("\n");
 }
 
+// Добавляем реализации новых методов
+int Person::get_global_person_count() {
+    return P_NUMBER;
+}
+
+// void Person::set_global_person_count(int count) {
+//     P_NUMBER = count;
+// }
+

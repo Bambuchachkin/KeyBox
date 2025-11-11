@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-// #include <EEPROM.h>
+#include <SPIFFS.h>
 
 #include "Person.h"
 
@@ -26,6 +26,9 @@ class Data_Base {
 
     void print_persons_data();
     void print_persons_data(std::string p_name);
+
+    bool save_to_spiffs();
+    bool load_from_spiffs();
 };
 
 bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);

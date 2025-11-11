@@ -129,14 +129,7 @@ void Terminal::process_JSON_TEST(){
       // Serial.print("press Enter to finish JSON TEST\n");
       delay(100);
     }
-    char new_char = ' ';
-    while (new_char != '\n'){
-      new_char = Serial.read();
-      readAnalogSignal(35); // перечисляем все порты с которых будем считывать сигнал
-      readAnalogSignal(34);
-      Serial.print("press Enter to finish V-checking\n");
-      delay(100);
-    }
+    Serial.print("FINISHING OF JSON TEST\n");
     return;
 }
 
@@ -224,5 +217,14 @@ void Terminal::buffer_UID(std::vector<uint8_t>& new_UID){
     Serial.print(' ');
   }
   Serial.println();
+}
+
+// Добавляем методы загрузки/сохранения
+bool Terminal::load_data() {
+    return data_base.load_from_spiffs();
+}
+
+bool Terminal::save_data() {
+    return data_base.save_to_spiffs();
 }
 

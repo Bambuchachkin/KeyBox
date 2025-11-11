@@ -32,6 +32,9 @@ class Person {
     bool return_key(int key_number);
 
     void print_info();
+
+    static int get_global_person_count();
+    // static void set_global_person_count(int count);
 };
 
 #endif

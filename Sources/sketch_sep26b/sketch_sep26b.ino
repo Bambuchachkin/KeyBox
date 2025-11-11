@@ -1,5 +1,6 @@
 #include <SPI.h>
 #include <MFRC522.h>
+#include <SPIFFS.h> 
 
 #include "Data_Base.h"
 #include "Terminal.h"
@@ -23,6 +24,17 @@ void setup() {
     Serial.setTxBufferSize(1024);
     Serial.setRxBufferSize(1024);
   #endif
+
+  // Инициализируем файловую систему
+  if (!SPIFFS.begin(true)) {
+    Serial.println("Ошибка инициализации SPIFFS");
+  }
+  // Загружаем данные через terminal
+  if (terminal.load_data()) {
+    Serial.println("Данные загружены из памяти");
+  } else {
+    Serial.println("Нет сохраненных данных");
+  }
 
   Serial.begin(9600); // Инициализация Serial-порта
   SPI.begin();          // Инициализация шины SPI

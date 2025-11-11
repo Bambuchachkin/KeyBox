@@ -32,6 +32,10 @@ class Terminal {
     void process_command(std::vector<std::string> commands);
     void buffer_UID(std::vector<uint8_t>& new_UID);
     std::vector<std::string> read_command();
+
+    // Добавляем методы для работы с сохранением
+    bool load_data();
+    bool save_data();
 };
 
 #endif
