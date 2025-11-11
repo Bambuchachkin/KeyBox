@@ -15,6 +15,15 @@ Terminal terminal;
 std::vector<uint8_t> received_UID;
 
 void setup() {
+  // Отключаем перезагрузку при открытии Serial
+  Serial.setDebugOutput(false);
+  delay(100);
+  // Для ESP32 можно также попробовать:
+  #ifdef ESP32
+    Serial.setTxBufferSize(1024);
+    Serial.setRxBufferSize(1024);
+  #endif
+
   Serial.begin(9600); // Инициализация Serial-порта
   SPI.begin();          // Инициализация шины SPI
 

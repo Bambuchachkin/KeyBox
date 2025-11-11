@@ -78,7 +78,7 @@ void Terminal::process_check(std::string who){
       Serial.print("press Enter to finish V-checking\n");
       delay(100);
     }
-      return;
+    return;
   } else {
     Serial.print("Try to use 'help'\n");
   }
@@ -90,6 +90,8 @@ void Terminal::process_help(){
   Serial.print("'delete [person number]' too view persons data\n");
   Serial.print("'info [ALL; person name]' too view persons data\n");
   Serial.print("'check [buffer; voltage]' too view sm\n");
+  Serial.print("'START_CSV_UPLOAD' test\n");
+  Serial.print("'START_JSON_TEST' test\n");
 }
 
 void Terminal::process_delete(std::string p_number){
@@ -117,6 +119,27 @@ void Terminal::process_CSV_read(){
   csvHandler.checkSerial();
 }
 
+void Terminal::process_JSON_TEST(){
+  // mode = "json";
+  Serial.print("Close the monitor port ('Ctrl+Shift+M')\n");
+  // char new_char = ' ';
+    while (json_handler.waitAndProcessJSON()!=0){
+      // new_char = Serial.read();
+      // json_handler.waitAndProcessJSON();
+      // Serial.print("press Enter to finish JSON TEST\n");
+      delay(100);
+    }
+    char new_char = ' ';
+    while (new_char != '\n'){
+      new_char = Serial.read();
+      readAnalogSignal(35); // перечисляем все порты с которых будем считывать сигнал
+      readAnalogSignal(34);
+      Serial.print("press Enter to finish V-checking\n");
+      delay(100);
+    }
+    return;
+}
+
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
   Serial.print(">>");
@@ -125,7 +148,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")){
+  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")&&(commands[0]!="START_JSON_TEST")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -153,6 +176,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "START_CSV_UPLOAD"){
     process_CSV_read();
+    return;
+  }
+  if (command == "START_JSON_TEST"){
+    process_JSON_TEST();
     return;
   } else {
     Serial.print("Unknown command\n");
