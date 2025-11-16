@@ -69,5 +69,19 @@
 Реализация хранения и восстановления данных из постоянной памяти:
 ![Отрисовка карты.](Documents/Images/data_recovery.png)
 
+<<<<<<< HEAD
 Реализация чтения данных пользователей из таблицы (предитоговая версия):
 ![Отрисовка карты.](Documents/Images/json_read.png)
+=======
+
+Добавлен кармашек для  зажима микропереключателя:
+<img width="1541" height="1035" alt="image" src="https://github.com/user-attachments/assets/2c278192-2b9a-40d1-a9de-ddc6e570d0b0" />
+
+Доработана основная платформа для закрепления кармашка в ней, так же увеличен радиус отерстия для пружинки:
+<img width="1212" height="1104" alt="image" src="https://github.com/user-attachments/assets/5a2353b9-1f5b-4b1b-9aa3-503ce4ea96b2" />
+
+Сделан корпус из дерева (дополнительные отверстия будут делаться на физтех-фабрике)
+<img width="767" height="1207" alt="image" src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" />
+
+
+>>>>>>> d63a1de7328e3e1025231b8460f717772879219a
