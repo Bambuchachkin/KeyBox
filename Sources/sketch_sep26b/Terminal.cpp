@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "Terminal.h"
 
-Terminal::Terminal(){
+Terminal::Terminal() : json_handler(&data_base){
   Serial.print("Terminal::Terminal()\n");
 }
 
@@ -91,7 +91,7 @@ void Terminal::process_help(){
   Serial.print("'info [ALL; person name]' too view persons data\n");
   Serial.print("'check [buffer; voltage]' too view sm\n");
   Serial.print("'START_CSV_UPLOAD' test\n");
-  Serial.print("'START_JSON_TEST' test\n");
+  Serial.print("'START_JSON' test\n");
 }
 
 void Terminal::process_delete(std::string p_number){
@@ -121,15 +121,17 @@ void Terminal::process_CSV_read(){
 
 void Terminal::process_JSON_TEST(){
   // mode = "json";
-  Serial.print("Close the monitor port ('Ctrl+Shift+M')\n");
+  // Serial.print("Close the monitor port ('Ctrl+Shift+M')\n");
+  Serial.print("START_OF_JSON_PROCESSING\n");
   // char new_char = ' ';
-    while (json_handler.waitAndProcessJSON()!=0){
+    while (json_handler.waitAndProcessJSON()!=2){
       // new_char = Serial.read();
       // json_handler.waitAndProcessJSON();
-      // Serial.print("press Enter to finish JSON TEST\n");
+      // Serial.print("EMPTY STRING WAS FOUND\n");
       delay(100);
     }
-    Serial.print("FINISHING OF JSON TEST\n");
+    // Serial.print("EMPTY STRING WAS FOUND\n");
+    Serial.print("FINISHING_OF_JSON_PROCESSING\n");
     return;
 }
 
@@ -141,7 +143,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")&&(commands[0]!="START_JSON_TEST")){
+  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")&&(commands[0]!="START_JSON")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -171,7 +173,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     process_CSV_read();
     return;
   }
-  if (command == "START_JSON_TEST"){
+  if (command == "START_JSON"){
     process_JSON_TEST();
     return;
   } else {

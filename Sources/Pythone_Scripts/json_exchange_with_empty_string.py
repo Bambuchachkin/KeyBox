@@ -81,9 +81,9 @@ class ExcelToESP32:
             print(f"Ошибка подключения: {e}")
             return False
 
-    def excel_to_json(self, file_path, sheet_name=0):
+    def excel_to_json_rows(self, file_path, sheet_name=0):
         """
-        Чтение Excel файла и преобразование в JSON
+        Чтение Excel файла и преобразование в список JSON строк
         """
         try:
             # Читаем Excel файл
@@ -95,50 +95,94 @@ class ExcelToESP32:
             # Заменяем NaN значения на пустые строки
             df = df.fillna('')
 
-            # Преобразуем в компактный JSON
-            data = {
-                "source_file": file_path,
-                "table_name": sheet_name if isinstance(sheet_name, str) else f"sheet_{sheet_name}",
-                "columns": list(df.columns),
-                "rows_count": len(df),
-                "data": df.to_dict('records')
-            }
+            # Создаем список всех строк данных (только сырые данные)
+            rows_data = []
+            for index, row in df.iterrows():
+                row_data = row.to_dict()
+                rows_data.append(row_data)
 
-            return data
+            return rows_data
 
         except Exception as e:
             print(f"Ошибка чтения Excel файла: {e}")
             return None
 
-    def send_json_data(self, json_data):
-        """Отправка JSON данных на ESP32"""
+    def send_json_data_row_by_row(self, json_rows):
+        """Отправка JSON данных на ESP32 построчно"""
         if not self.ser:
             print("Нет подключения к ESP32")
             return False
 
         try:
-            # Сначала отправляем команду для активации JSON режима
+            # Активация JSON режима - отправляем START_JSON_TEST
             print("Активация JSON режима...")
-            self.ser.write("START_JSON_TEST\n".encode('utf-8'))
-            time.sleep(2)  # Даем время на переключение режима
+            self.ser.write("START_JSON\n".encode('utf-8'))
+            time.sleep(2)
 
-            # Преобразуем в JSON
-            json_str = json.dumps(json_data, ensure_ascii=False, separators=(',', ':'))
-            print(f"Отправка JSON данных ({len(json_str)} символов)...")
+            total_rows = len(json_rows)
+            print(f"Будет отправлено {total_rows} строк данных")
 
-            # Отправляем данные
-            self.ser.write((json_str + '\n').encode('utf-8'))
-            self.ser.flush()  # Ждем отправки всех данных
+            # Отправляем каждый JSON объект по отдельности
+            for i, row_data in enumerate(json_rows):
+                print(f"Отправка строки {i + 1}/{total_rows}...")
 
-            print("Данные отправлены, ждем ответа...")
+                # Преобразуем в JSON строку
+                json_str = json.dumps(row_data, ensure_ascii=False, separators=(',', ':'))
 
-            # Читаем ответ с увеличенным таймаутом
-            self.read_response(timeout=15)
+                # Отправляем строку
+                self.ser.write((json_str + '\n').encode('utf-8'))
+                self.ser.flush()
+
+                # Ждем подтверждения от ESP32 для каждой строки
+                if not self.wait_for_ack(timeout=5):
+                    print(f"Таймаут подтверждения для строки {i}")
+                    return False
+
+                # Небольшая задержка между строками
+                time.sleep(0.1)
+
+            # ОТПРАВЛЯЕМ СТРОКУ END_OF_SESSION В КОНЦЕ
+            print("Отправка команды END_OF_SESSION для завершения...")
+            self.ser.write("END_OF_SESSION\n".encode('utf-8'))
+            self.ser.flush()
+
+            # Ждем подтверждения для команды завершения
+            if not self.wait_for_ack(timeout=5):
+                print("Таймаут подтверждения для END_OF_SESSION")
+                return False
+
+            print("Все строки и команда завершения отправлены успешно!")
             return True
 
         except Exception as e:
             print(f"Ошибка отправки: {e}")
             return False
+
+    def wait_for_ack(self, timeout=5):
+        """Ожидание подтверждения от ESP32"""
+        start_time = time.time()
+
+        while time.time() - start_time < timeout:
+            if self.ser.in_waiting > 0:
+                try:
+                    line = self.ser.readline().decode('utf-8', errors='ignore').strip()
+                    if line:
+                        print(f"ESP32: {line}")
+
+                        # Проверяем различные варианты подтверждений
+                        if any(keyword in line for keyword in
+                               ['ACK', 'OK', 'SUCCESS', 'processed', 'Готов', 'ПУСТАЯ_СТРОКА',
+                                'END_OF_SESSION_ACK', 'SESSION_COMPLETE']):
+                            return True
+                        elif any(keyword in line for keyword in ['ERROR', 'FAIL', 'Ошибка']):
+                            print("ESP32 сообщила об ошибке")
+                            return False
+                except Exception as e:
+                    print(f"Ошибка чтения подтверждения: {e}")
+
+            time.sleep(0.1)
+
+        return False
 
     def read_response(self, timeout=15):
         """Чтение ответа от ESP32"""
@@ -157,8 +201,9 @@ class ExcelToESP32:
 
                         # Если получили признак завершения обработки
                         if any(keyword in line for keyword in
-                               ['JSON_MODE_ENDED', 'processed', 'COMPLETE', 'ОБРАБОТАН']):
-                            print("Обработка JSON завершена")
+                               ['COMPLETE', 'FINISHED', 'ЗАВЕРШЕНО', 'ВСЕ_СТРОКИ',
+                                'ПУСТАЯ_СТРОКА_ПРИНЯТА', 'SESSION_ENDED', 'END_OF_SESSION_CONFIRMED']):
+                            print("Обработка всех строк завершена")
                             break
                 except Exception as e:
                     print(f"Ошибка чтения: {e}")
@@ -177,53 +222,7 @@ class ExcelToESP32:
             print("Соединение закрыто")
 
 
-def test_no_reboot():
-    """Тест для проверки отсутствия перезагрузки ESP32"""
-    try:
-        ser = serial.Serial('COM7', 9600, timeout=2, dsrdtr=False, rtscts=False)
-
-        print("Проверка начального состояния...")
-        time.sleep(0.5)
-
-        initial_data = []
-        start_time = time.time()
-        while time.time() - start_time < 3:
-            if ser.in_waiting:
-                line = ser.readline().decode('utf-8', errors='ignore').strip()
-                if line:
-                    initial_data.append(line)
-                    print(f"Начальные данные: {line}")
-
-        # Проверяем наличие признаков перезагрузки
-        reboot_indicators = ['ets Jun', 'rst', 'boot', 'load', 'entry']
-        has_reboot = any(any(indicator in line for indicator in reboot_indicators)
-                         for line in initial_data)
-
-        if has_reboot:
-            print("ОБНАРУЖЕНА ПЕРЕЗАГРУЗКА ESP32")
-        else:
-            print("ESP32 не перезагружалась")
-
-        ser.close()
-        return not has_reboot
-
-    except Exception as e:
-        print(f"Ошибка теста: {e}")
-        return False
-
-
 def main():
-    print("=== ТЕСТ ОТСУТСТВИЯ ПЕРЕЗАГРУЗКИ ===")
-    stable_connection = test_no_reboot()
-
-    if not stable_connection:
-        print("ПРЕДУПРЕЖДЕНИЕ: ESP32 перезагружается при подключении")
-        print("Рекомендуется аппаратное решение проблемы")
-        return
-
-    time.sleep(2)
-    print("\n=== ОСНОВНАЯ ОТПРАВКА ===")
-
     esp = ExcelToESP32('COM7', 9600)
 
     if not esp.connect():
@@ -231,16 +230,17 @@ def main():
 
     try:
         excel_file = "data.xlsx"
-        json_data = esp.excel_to_json(excel_file)
+        json_rows = esp.excel_to_json_rows(excel_file)
 
-        if json_data:
-            print(f"\nПреобразовано в JSON:")
-            print(f"Таблица: {json_data['table_name']}")
-            print(f"Колонок: {len(json_data['columns'])}")
-            print(f"Строк: {json_data['rows_count']}")
+        if json_rows:
+            print(f"\nПодготовлено {len(json_rows)} строк данных для отправки")
+            print(f"Начинаем построчную отправку на ESP32...")
 
-            print(f"\nОтправка на ESP32...")
-            esp.send_json_data(json_data)
+            if esp.send_json_data_row_by_row(json_rows):
+                print("Чтение финального ответа...")
+                esp.read_response(timeout=10)
+            else:
+                print("Ошибка при отправке данных")
 
     except Exception as e:
         print(f"Ошибка: {e}")

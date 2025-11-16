@@ -95,6 +95,23 @@ bool Data_Base::add_person(std::vector<uint8_t> person_UID){
   return true;
 }
 
+bool Data_Base::add_person_json(std::vector<uint8_t> person_UID, std::string person_name){
+  load_from_spiffs();
+  Serial.print("Trying to add person in Data_Base: ");
+  for (int i =0; i< person_UID.size(); i++){
+    Serial.print(person_UID[i]);
+    Serial.print(' ');
+  }
+  Serial.print('\n');
+  Person* person = new Person(person_UID);
+  std::string p_name = person_name;
+  person->rename(p_name);
+  person_data[person_UID] = person;
+  Serial.print("New person has been added\n");
+  save_to_spiffs();
+  return true;
+}
+
 bool Data_Base::delete_person(std::vector<uint8_t> person_UID){
   auto it = find_person(person_UID);
   if (it != person_data.end()){
@@ -300,4 +317,11 @@ bool Data_Base::load_from_spiffs() {
     Serial.print("Загружено записей из SPIFFS: ");
     Serial.println(personsLength);
     return true;
+}
+
+void Data_Base::clear_Base(){
+  for (auto it = person_data.begin(); it!=person_data.end(); it++){
+    delete (it->second);
+  }
+  person_data.clear();
 }

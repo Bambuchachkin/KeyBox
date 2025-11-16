@@ -21,6 +21,7 @@ class Data_Base {
     auto get_map_end();
 
     bool add_person(std::vector<uint8_t> person_UID);
+    bool add_person_json(std::vector<uint8_t> person_UID, std::string person_name);
     bool delete_person(std::vector<uint8_t> person_UID);
     bool delete_person(int p_number);
 
@@ -29,6 +30,8 @@ class Data_Base {
 
     bool save_to_spiffs();
     bool load_from_spiffs();
+
+    void clear_Base();
 };
 
 bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);
