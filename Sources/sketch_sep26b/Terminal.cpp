@@ -86,12 +86,11 @@ void Terminal::process_check(std::string who){
 
 void Terminal::process_help(){
   Serial.print("Commands list:\n");
-  Serial.print("'add [THIS]' too add new person\n");
-  Serial.print("'delete [person number]' too view persons data\n");
-  Serial.print("'info [ALL; person name]' too view persons data\n");
-  Serial.print("'check [buffer; voltage]' too view sm\n");
-  Serial.print("'START_CSV_UPLOAD' test\n");
-  Serial.print("'START_JSON' test\n");
+  Serial.print("'add [THIS]' to add new person\n");
+  Serial.print("'delete [person number]' to view persons data\n");
+  Serial.print("'info [ALL; person name]' to view persons data\n");
+  Serial.print("'check [buffer; voltage]' to view sm\n");
+  Serial.print("'START_JSON_UPLOAD' to upload data base\n");
 }
 
 void Terminal::process_delete(std::string p_number){
@@ -112,11 +111,6 @@ void Terminal::process_delete(std::string p_number){
   }
 
   // data_base.delete_person(std::vector<uint8_t> person_UID)
-}
-
-void Terminal::process_CSV_read(){
-  csvHandler.activateCSVMode();
-  csvHandler.checkSerial();
 }
 
 void Terminal::process_JSON_TEST(){
@@ -143,7 +137,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if ((commands.size() == 1) && (commands[0]!="START_CSV_UPLOAD")&&(commands[0]!="START_JSON")){
+  if ((commands.size() == 1) && (commands[0]!="START_JSON_UPLOAD")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -169,11 +163,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     process_delete(commands[1]);
     return;
   }
-  if (command == "START_CSV_UPLOAD"){
-    process_CSV_read();
-    return;
-  }
-  if (command == "START_JSON"){
+  if (command == "START_JSON_UPLOAD"){
     process_JSON_TEST();
     return;
   } else {

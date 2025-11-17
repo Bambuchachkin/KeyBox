@@ -34,6 +34,9 @@ class Person {
     void print_info();
 
     static int get_global_person_count();
+
+    std::map<int, int> get_keys() const;
+    void set_key_status(int key_number, int status);
     // static void set_global_person_count(int count);
 };
 

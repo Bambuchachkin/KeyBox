@@ -19,7 +19,6 @@ void setup() {
   // Отключаем перезагрузку при открытии Serial
   Serial.setDebugOutput(false);
   delay(100);
-  // Для ESP32 можно также попробовать:
   #ifdef ESP32
     Serial.setTxBufferSize(1024);
     Serial.setRxBufferSize(1024);
@@ -30,9 +29,7 @@ void setup() {
     Serial.println("Ошибка инициализации SPIFFS");
   }
   // Загружаем данные через terminal
-  if (terminal.load_data()) {
-    Serial.println("Данные загружены из памяти");
-  } else {
+  if (!terminal.load_data()) {
     Serial.println("Нет сохраненных данных");
   }
 
@@ -66,7 +63,7 @@ void loop() {
     digitalWrite(RST_PIN, HIGH);          // Сбрасываем модуль
     delayMicroseconds(2);                 // Ждем 2 мкс
     digitalWrite(RST_PIN, LOW);           // Отпускаем сброс
-    mfrc522.PCD_Init();                      // Инициализируем заного
+    mfrc522.PCD_Init();                   // Инициализируем заново
   }
 
   if (!mfrc522.PICC_IsNewCardPresent()) return; // Проверяем, поднесена ли новая метка. Если нет, выходим из loop и проверяем снова

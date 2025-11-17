@@ -95,6 +95,8 @@ class ExcelToESP32:
             # Заменяем NaN значения на пустые строки
             df = df.fillna('')
 
+            df = df.astype(str)
+
             # Создаем список всех строк данных (только сырые данные)
             rows_data = []
             for index, row in df.iterrows():
@@ -116,7 +118,7 @@ class ExcelToESP32:
         try:
             # Активация JSON режима - отправляем START_JSON_TEST
             print("Активация JSON режима...")
-            self.ser.write("START_JSON\n".encode('utf-8'))
+            self.ser.write("START_JSON_UPLOAD\n".encode('utf-8'))
             time.sleep(2)
 
             total_rows = len(json_rows)
@@ -172,7 +174,7 @@ class ExcelToESP32:
                         # Проверяем различные варианты подтверждений
                         if any(keyword in line for keyword in
                                ['ACK', 'OK', 'SUCCESS', 'processed', 'Готов', 'ПУСТАЯ_СТРОКА',
-                                'END_OF_SESSION_ACK', 'SESSION_COMPLETE']):
+                                'END_OF_SESSION_ACK', 'FINISHING_OF_JSON_PROCESSING']):
                             return True
                         elif any(keyword in line for keyword in ['ERROR', 'FAIL', 'Ошибка']):
                             print("ESP32 сообщила об ошибке")
@@ -202,7 +204,7 @@ class ExcelToESP32:
                         # Если получили признак завершения обработки
                         if any(keyword in line for keyword in
                                ['COMPLETE', 'FINISHED', 'ЗАВЕРШЕНО', 'ВСЕ_СТРОКИ',
-                                'ПУСТАЯ_СТРОКА_ПРИНЯТА', 'SESSION_ENDED', 'END_OF_SESSION_CONFIRMED']):
+                                'ПУСТАЯ_СТРОКА_ПРИНЯТА', 'SESSION_ENDED', 'FINISHING_OF_JSON_PROCESSING']):
                             print("Обработка всех строк завершена")
                             break
                 except Exception as e:

@@ -18,6 +18,8 @@ class Data_Base {
     auto find_person(std::string person_name);
     auto find_person(int p_number);
 
+    Person* get_person(std::vector<uint8_t> person_UID);
+
     auto get_map_end();
 
     bool add_person(std::vector<uint8_t> person_UID);
@@ -32,6 +34,7 @@ class Data_Base {
     bool load_from_spiffs();
 
     void clear_Base();
+    void save_Base();
 };
 
 bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);

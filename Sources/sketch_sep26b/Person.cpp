@@ -78,15 +78,18 @@ int Person::get_key_status(int key_number){
 }
 
 bool Person::take_key(int key_number){
-  if (check_key_access(key_number)){
-    auto it = keys.find(key_number);
-    it->second = 2;
-    Serial.print("Key is taken\n");
-    return true;
-  } else {
-    Serial.print("Key is taken\n");
-  }
-  return false;
+  auto it = keys.find(key_number);
+  it->second = 2;
+  return true;
+  // if (check_key_access(key_number)){
+  //   auto it = keys.find(key_number);
+  //   it->second = 2;
+  //   Serial.print("Key is taken\n");
+  //   return true;
+  // } else {
+  //   Serial.print("Key is taken\n");
+  // }
+  // return false;
 }
 
 
@@ -130,6 +133,14 @@ void Person::print_info(){
 // Добавляем реализации новых методов
 int Person::get_global_person_count() {
     return P_NUMBER;
+}
+
+std::map<int, int> Person::get_keys() const {
+    return keys;
+}
+
+void Person::set_key_status(int key_number, int status) {
+    keys[key_number] = status;
 }
 
 // void Person::set_global_person_count(int count) {
