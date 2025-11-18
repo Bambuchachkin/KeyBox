@@ -17,6 +17,8 @@ class Person {
     Person(std::vector<uint8_t> person_UID);
     ~Person();
 
+    static void set_P_NUMBER_TO_0();
+
     void rename(std::string new_name);
     std::string get_name();
     int get_person_number();

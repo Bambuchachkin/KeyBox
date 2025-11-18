@@ -101,19 +101,19 @@ bool Data_Base::add_person(std::vector<uint8_t> person_UID){
 }
 
 bool Data_Base::add_person_json(std::vector<uint8_t> person_UID, std::string person_name){
-  load_from_spiffs();
-  Serial.print("Trying to add person in Data_Base: ");
-  for (int i =0; i< person_UID.size(); i++){
-    Serial.print(person_UID[i]);
-    Serial.print(' ');
-  }
-  Serial.print('\n');
+  // load_from_spiffs();
+  // Serial.print("Trying to add person in Data_Base: ");
+  // for (int i =0; i< person_UID.size(); i++){
+    // Serial.print(person_UID[i]);
+    // Serial.print(' ');
+  // }
+  // Serial.print('\n');
   Person* person = new Person(person_UID);
   std::string p_name = person_name;
   person->rename(p_name);
   person_data[person_UID] = person;
-  Serial.print("New person has been added\n");
-  save_to_spiffs();
+  // Serial.print("New person has been added\n");
+  // save_to_spiffs();
   return true;
 }
 
@@ -201,110 +201,6 @@ void Data_Base::print_persons_data(std::string p_name){
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // РЕАЛИЗАЦИЯ МЕТОДОВ SPIFFS ДЛЯ Arduino_JSON.h
-
-// bool Data_Base::save_to_spiffs() {
-//     if (!SPIFFS.begin(true)) {
-//         Serial.println("Ошибка инициализации SPIFFS");
-//         return false;
-//     }
-    
-//     File file = SPIFFS.open("/person_data.json", "w");
-//     if (!file) {
-//         Serial.println("Ошибка открытия файла для записи");
-//         SPIFFS.end();
-//         return false;
-//     }
-    
-//     // Создаем JSON объект для Arduino_JSON
-//     JSONVar doc;
-//     JSONVar persons = JSONVar::parse("[]"); // Создаем пустой массив
-    
-//     int index = 0;
-//     for (auto& pair : person_data) {
-//         JSONVar person;
-        
-//         // Сохраняем UID как массив
-//         JSONVar uidArray;
-//         for (int i = 0; i < pair.first.size(); i++) {
-//             uidArray[i] = (int)pair.first[i];
-//         }
-//         person["uid"] = uidArray;
-        
-//         // Сохраняем данные
-//         person["name"] = pair.second->get_name().c_str();
-//         person["number"] = pair.second->get_person_number();
-        
-//         persons[index] = person;
-//         index++;
-//     }
-    
-//     doc["persons"] = persons;
-    
-//     // Сохраняем в файл
-//     String jsonString = JSON.stringify(doc);
-//     file.print(jsonString);
-//     file.close();
-//     SPIFFS.end();
-    
-//     Serial.print("Данные сохранены в SPIFFS. Записей: ");
-//     Serial.println(person_data.size());
-//     return true;
-// }
-
-// bool Data_Base::load_from_spiffs() {
-//     if (!SPIFFS.begin(true)) {
-//         Serial.println("Ошибка инициализации SPIFFS");
-//         return false;
-//     }
-//     if (!SPIFFS.exists("/person_data.json")) {
-//         Serial.println("Файл данных не найден");
-//         SPIFFS.end();
-//         return false;
-//     }
-//     File file = SPIFFS.open("/person_data.json", "r");
-//     if (!file) {
-//         Serial.println("Ошибка открытия файла для чтения");
-//         SPIFFS.end();
-//         return false;
-//     }
-//     String jsonString = file.readString();
-//     file.close();
-//     SPIFFS.end();
-//     // Парсим JSON
-//     JSONVar doc = JSON.parse(jsonString);
-//     if (JSON.typeof(doc) == "undefined") {
-//         Serial.println("Ошибка: Неверный JSON формат");
-//         return false;
-//     }
-//     // Очищаем текущие данные
-//     for (auto& pair : person_data) {
-//         delete pair.second;
-//     }
-//     person_data.clear();
-//     JSONVar persons = doc["persons"];
-//     // Получаем длину массива
-//     int personsLength = persons.length();
-//     for (int i = 0; i < personsLength; i++) {
-//         JSONVar person = persons[i];
-//         // Восстанавливаем UID
-//         JSONVar uidArray = person["uid"];
-//         std::vector<uint8_t> uid;
-//         int uidLength = uidArray.length();
-//         for (int j = 0; j < uidLength; j++) {
-//             uid.push_back((uint8_t)(int)uidArray[j]);
-//         }
-//         // Восстанавливаем данные
-//         const char* name = person["name"];
-//         int p_number = (int)person["number"];
-//         // Восстанавливаем персонажа
-//         Person* p = new Person(uid);
-//         p->rename(std::string(name));
-//         person_data[uid] = p;
-//     }
-//     Serial.print("Загружено записей из SPIFFS: ");
-//     Serial.println(personsLength);
-//     return true;
-// }
 
 bool Data_Base::save_to_spiffs() {
     if (!SPIFFS.begin(true)) {
@@ -449,9 +345,8 @@ bool Data_Base::load_from_spiffs() {
 }
 
 void Data_Base::clear_Base(){
-  for (auto it = person_data.begin(); it!=person_data.end(); it++){
-    delete (it->second);
-  }
+  auto it = person_data.begin();
+  it->second->set_P_NUMBER_TO_0();
   person_data.clear();
 }
 

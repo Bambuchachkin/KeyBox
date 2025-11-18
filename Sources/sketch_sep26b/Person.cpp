@@ -3,12 +3,19 @@
 
 int Person::P_NUMBER = 0;
 
+void Person::set_P_NUMBER_TO_0(){
+  P_NUMBER = 0;
+}
+
 Person::Person(std::vector<uint8_t> person_UID){
   for (int i =0; i<person_UID.size(); i++){
     UID.push_back(person_UID[i]);
   }
   P_NUMBER++;
   p_number = P_NUMBER;
+  for (int i =1; i<11; i++){
+    keys[i] = 0;
+  }
   // Serial.print("Person::Person()\n");
 }
 
@@ -32,7 +39,7 @@ int Person::get_person_number(){
 
 bool Person::add_key_access(int key_number){
   keys[key_number] = 1;
-  Serial.print("Access was given\n");
+  // Serial.print("Access was given\n");
   return true;
 }
 
@@ -78,18 +85,18 @@ int Person::get_key_status(int key_number){
 }
 
 bool Person::take_key(int key_number){
-  auto it = keys.find(key_number);
-  it->second = 2;
-  return true;
-  // if (check_key_access(key_number)){
-  //   auto it = keys.find(key_number);
-  //   it->second = 2;
-  //   Serial.print("Key is taken\n");
-  //   return true;
-  // } else {
-  //   Serial.print("Key is taken\n");
-  // }
-  // return false;
+  // auto it = keys.find(key_number);
+  // it->second = 2;
+  // return true;
+  if (check_key_access(key_number)){
+    keys[key_number] = 2;
+    Serial.print("Key is taken\n");
+    return true;
+  } else if (keys[key_number] == 0){
+    keys[key_number] = -2;
+    Serial.print("KEY IS STOLEN !!!\n");
+  }
+  return false;
 }
 
 
@@ -122,7 +129,7 @@ void Person::print_info(){
   }
   Serial.print(" | Keys in hands: ");
   for (auto it = keys.begin(); it!=keys.end(); it++){
-    if (it->second == 2){
+    if (it->second == 2 || it->second == -2){
       Serial.print(it->first);
       Serial.print(" ");
     }

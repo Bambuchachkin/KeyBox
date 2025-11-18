@@ -117,6 +117,7 @@ void Terminal::process_JSON_TEST(){
   // mode = "json";
   // Serial.print("Close the monitor port ('Ctrl+Shift+M')\n");
   Serial.print("START_OF_JSON_PROCESSING\n");
+  data_base.clear_Base();
   // char new_char = ' ';
     while (json_handler.waitAndProcessJSON()!=2){
       // new_char = Serial.read();
@@ -124,6 +125,7 @@ void Terminal::process_JSON_TEST(){
       // Serial.print("EMPTY STRING WAS FOUND\n");
       delay(100);
     }
+    data_base.save_Base();
     // Serial.print("EMPTY STRING WAS FOUND\n");
     Serial.print("FINISHING_OF_JSON_PROCESSING\n");
     return;

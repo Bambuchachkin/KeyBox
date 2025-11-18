@@ -59,7 +59,7 @@ Json_Handler::Json_Handler(Data_Base* Base) {
 }
 
 void Json_Handler::apdate_Data_Base(JSONVar jsonDoc){
-  data_base->clear_Base();
+  // data_base->clear_Base();
   String uidStr = (String)jsonDoc["uid"];
   std::string uidStdStr = uidStr.c_str();
   std::vector<uint8_t> uidBytes = hexStringToVector(uidStdStr);
@@ -73,7 +73,6 @@ void Json_Handler::apdate_Data_Base(JSONVar jsonDoc){
   std::vector<int> keys = read_keys(AvailableKeysStdStr);
   for (int i =0; i< keys.size(); i++){
     person->add_key_access(keys[i]);
-    // data_base->save_Base();
   }
 
   String TakenKeysStr = (String)jsonDoc["on_hands"];
@@ -81,13 +80,13 @@ void Json_Handler::apdate_Data_Base(JSONVar jsonDoc){
   keys = read_keys(TakenKeysStdStr);
   for (int i =0; i< keys.size(); i++){
     person->take_key(keys[i]);
-    // data_base->save_Base();
   }
-  data_base->save_Base();
+  // data_base->save_Base();
 }
 
 int Json_Handler::waitAndProcessJSON() {
   if (!comPort->available()){return 1;}
+
   String receivedData = comPort->readStringUntil('\n');
   receivedData.trim();
             
@@ -110,17 +109,17 @@ int Json_Handler::waitAndProcessJSON() {
     return 1;
   }
             
-  Serial.println("JSON таблица получена");
+  // Serial.println("JSON таблица получена");
 
   apdate_Data_Base(jsonDoc);
             
-  // Добавляем пометку
-  jsonDoc["processed_by_esp32"] = true;
-  jsonDoc["processed_at"] = (long)millis();
+  // // Добавляем пометку
+  // jsonDoc["processed_by_esp32"] = true;
+  // jsonDoc["processed_at"] = (long)millis();
             
-  // Отправляем обратно
-  String output = JSON.stringify(jsonDoc);
-  Serial.println(output);
+  // // Отправляем обратно
+  // String output = JSON.stringify(jsonDoc);
+  // Serial.println(output);
 
   return 0;
 }
