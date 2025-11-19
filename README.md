@@ -67,7 +67,7 @@
 ![Отрисовка карты.](Documents/Images/json_exchange.png)
 
 Реализация хранения и восстановления данных из постоянной памяти:
-![Отрисовка карты.](Documents/Images/data_recovery.png
+![Отрисовка карты.](Documents/Images/data_recovery.png)
 
 Добавлен кармашек для  зажима микропереключателя:
 <img width="1541" height="1035" alt="image" src="https://github.com/user-attachments/assets/2c278192-2b9a-40d1-a9de-ddc6e570d0b0" />
