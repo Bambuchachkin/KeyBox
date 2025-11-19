@@ -131,6 +131,12 @@ void Terminal::process_JSON_TEST(){
     return;
 }
 
+void Terminal::process_JSON_SEND(){
+  Serial.println("SENDING_JSON_DATA");
+  json_handler.send_json_to_PC();
+  return;
+}
+
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
   Serial.print(">>");
@@ -139,7 +145,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if ((commands.size() == 1) && (commands[0]!="START_JSON_UPLOAD")){
+  if ((commands.size() == 1) && (commands[0]!="START_JSON_UPLOAD") && (commands[0]!="GET_JSON_DATA")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -167,6 +173,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "START_JSON_UPLOAD"){
     process_JSON_TEST();
+    return;
+  }
+  if (command == "GET_JSON_DATA"){
+    process_JSON_SEND();
     return;
   } else {
     Serial.print("Unknown command\n");

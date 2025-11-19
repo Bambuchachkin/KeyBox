@@ -17,6 +17,7 @@ public:
     Json_Handler(Data_Base* Base);
     void apdate_Data_Base(JSONVar jsonDoc);
     int waitAndProcessJSON();
+    bool send_json_to_PC();
 };
 
 #endif

@@ -353,3 +353,98 @@ void Data_Base::clear_Base(){
 void Data_Base::save_Base(){
   save_to_spiffs();
 }
+
+// bool Data_Base::send_json_to_PC(){
+//   save_Base();
+//   // Создаем JSON объект для Arduino_JSON
+//   JSONVar doc;
+//   JSONVar persons = JSONVar::parse("[]"); // Создаем пустой массив
+    
+//   int index = 0;
+//   for (auto& pair : person_data) {
+//     JSONVar person;
+//     JSONVar uidArray;
+//     for (int i = 0; i < pair.first.size(); i++) {
+//         uidArray[i] = (int)pair.first[i];
+//     }
+//     person["uid"] = uidArray;
+//     // Сохраняем данные
+//     person["name"] = pair.second->get_name().c_str();
+//     person["number"] = pair.second->get_person_number();    
+//     // Сохраняем ключи доступа
+//     JSONVar keysArray;
+//     int keyIndex = 0;
+//     std::map<int, int> personKeys = pair.second->get_keys(); // Нужно добавить этот метод в Person
+        
+//     for (auto& keyPair : personKeys) {
+//       JSONVar keyObj;
+//       keyObj["key_number"] = keyPair.first;
+//       keyObj["key_status"] = keyPair.second;
+//       keysArray[keyIndex] = keyObj;
+//       keyIndex++;
+//     }
+//     person["keys"] = keysArray;    
+//     persons[index] = person;
+//     index++;
+//   }
+//   doc["persons"] = persons; 
+
+//   String output = JSON.stringify(doc);
+//   Serial.println(output);
+    
+//   Serial.print("END_OF_JSON_SENDING");
+//   return true;
+// }
+bool Data_Base::send_json_to_PC(){
+  save_Base();
+  JSONVar doc;
+  JSONVar persons = JSONVar::parse("[]");
+    
+  int index = 0;
+  for (auto& pair : person_data) {
+    JSONVar person;
+    JSONVar uidArray;
+    
+    // UID в hex формате
+    for (int i = 0; i < pair.first.size(); i++) {
+        uidArray[i] = (int)pair.first[i];
+    }
+    person["uid"] = uidArray;
+    
+    // Основные данные
+    person["name"] = pair.second->get_name().c_str();
+    person["number"] = pair.second->get_person_number();    
+    
+    // Ключи доступа - определяем статусы
+    JSONVar availableKeys = JSONVar::parse("[]");
+    JSONVar onHandsKeys = JSONVar::parse("[]");
+    int availableIndex = 0;
+    int onHandsIndex = 0;
+    
+    std::map<int, int> personKeys = pair.second->get_keys();
+        
+    for (auto& keyPair : personKeys) {
+      if ((keyPair.second == 1) || (keyPair.second == 2)) { // Доступные ключи
+        availableKeys[availableIndex] = keyPair.first;
+        availableIndex++;
+      }
+      if ((keyPair.second == 2) || (keyPair.second == -2)) { // Ключи на руках
+        onHandsKeys[onHandsIndex] = keyPair.first;
+        onHandsIndex++;
+      }
+    }
+    
+    person["available_keys"] = availableKeys;
+    person["on_hands_keys"] = onHandsKeys;
+    
+    persons[index] = person;
+    index++;
+  }
+  doc["persons"] = persons; 
+
+  String output = JSON.stringify(doc);
+  Serial.println(output);
+    
+  Serial.print("END_OF_JSON_SENDING");
+  return true;
+}

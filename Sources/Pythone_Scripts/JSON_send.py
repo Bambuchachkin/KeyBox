@@ -195,7 +195,7 @@ def main():
         return
 
     try:
-        excel_file = "data.xlsx"
+        excel_file = "./sending_data/data.xlsx"
         json_rows = esp.excel_to_json_rows(excel_file)
 
         if json_rows:

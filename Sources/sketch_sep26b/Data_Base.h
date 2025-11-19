@@ -35,6 +35,8 @@ class Data_Base {
 
     void clear_Base();
     void save_Base();
+
+    bool send_json_to_PC();
 };
 
 bool operator==(const std::vector<uint8_t>& lhs, const std::vector<uint8_t>& rhs);

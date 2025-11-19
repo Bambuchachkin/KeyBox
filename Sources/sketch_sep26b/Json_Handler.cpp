@@ -123,3 +123,9 @@ int Json_Handler::waitAndProcessJSON() {
 
   return 0;
 }
+
+bool Json_Handler::send_json_to_PC(){
+  data_base->save_Base();
+  data_base->send_json_to_PC();
+  return true;
+}
