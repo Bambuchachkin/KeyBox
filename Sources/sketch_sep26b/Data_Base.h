@@ -6,6 +6,7 @@
 #include <SPIFFS.h>
 
 #include "Person.h"
+// #include "Key_Handler.h"
 
 class Data_Base {
   private:
@@ -26,6 +27,12 @@ class Data_Base {
     bool add_person_json(std::vector<uint8_t> person_UID, std::string person_name);
     bool delete_person(std::vector<uint8_t> person_UID);
     bool delete_person(int p_number);
+
+    bool take_key(std::vector<uint8_t> person_UID, int key_number);
+    bool return_key(std::vector<uint8_t> person_UID, int key_number);
+    bool give_access(std::vector<uint8_t> person_UID, int key_number);
+    bool remove_access(std::vector<uint8_t> person_UID, int key_number);
+    int get_status(std::vector<uint8_t> person_UID, int key_number);
 
     void print_persons_data();
     void print_persons_data(std::string p_name);

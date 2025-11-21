@@ -2,7 +2,7 @@
 #include <Arduino.h>
 #include "Terminal.h"
 
-Terminal::Terminal() : json_handler(&data_base){
+Terminal::Terminal() : json_handler(&data_base), key_handler(&data_base){
   Serial.print("Terminal::Terminal()\n");
 }
 
@@ -137,6 +137,10 @@ void Terminal::process_JSON_SEND(){
   return;
 }
 
+void Terminal::process_notes_send(){
+  key_handler.send_notes_to_PC();
+}
+
 void Terminal::process_command(std::vector<std::string> commands){
   Serial.print('\n');
   Serial.print(">>");
@@ -145,7 +149,7 @@ void Terminal::process_command(std::vector<std::string> commands){
     Serial.print(i->data());
   }
   Serial.print(":\n");
-  if ((commands.size() == 1) && (commands[0]!="START_JSON_UPLOAD") && (commands[0]!="GET_JSON_DATA")){
+  if ((commands.size() == 1) && (commands[0]!="START_JSON_UPLOAD") && (commands[0]!="GET_JSON_DATA") && (commands[0]!="GET_NOTES")){
     if (commands[0] == "help"){
       process_help();
       return;
@@ -177,6 +181,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "GET_JSON_DATA"){
     process_JSON_SEND();
+    return;
+  }
+  if (command == "GET_NOTES"){
+    process_notes_send();
     return;
   } else {
     Serial.print("Unknown command\n");
@@ -230,5 +238,9 @@ bool Terminal::load_data() {
 
 bool Terminal::save_data() {
     return data_base.save_to_spiffs();
+}
+
+bool Terminal::load_notes() {
+    return key_handler.load_from_spiffs();
 }
 

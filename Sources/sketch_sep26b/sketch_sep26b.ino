@@ -2,8 +2,9 @@
 #include <MFRC522.h>
 #include <SPIFFS.h> 
 
-#include "Data_Base.h"
+// #include "Data_Base.h"
 #include "Terminal.h"
+// #include "Key_Handler.h"
 
 #define SS_PIN 5
 #define RST_PIN 21
@@ -31,6 +32,9 @@ void setup() {
   // Загружаем данные через terminal
   if (!terminal.load_data()) {
     Serial.println("Нет сохраненных данных");
+  }
+  if (!terminal.load_notes()) {
+    Serial.println("Нет сохраненных заметок");
   }
 
   Serial.begin(9600); // Инициализация Serial-порта

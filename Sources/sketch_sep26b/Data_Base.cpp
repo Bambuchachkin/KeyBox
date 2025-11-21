@@ -139,6 +139,22 @@ bool Data_Base::delete_person(int p_number){
   return false;
 }
 
+bool Data_Base::take_key(std::vector<uint8_t> person_UID, int key_number){
+  return person_data[person_UID]->take_key(key_number);
+}
+bool Data_Base::return_key(std::vector<uint8_t> person_UID, int key_number){
+  return person_data[person_UID]->return_key(key_number);
+}
+bool Data_Base::give_access(std::vector<uint8_t> person_UID, int key_number){
+  return person_data[person_UID]->add_key_access(key_number);
+}
+bool Data_Base::remove_access(std::vector<uint8_t> person_UID, int key_number){
+  return person_data[person_UID]->remove_key_access(key_number);
+}
+int Data_Base::get_status(std::vector<uint8_t> person_UID, int key_number){
+  return person_data[person_UID]->get_key_status(key_number);
+}
+
 void Data_Base::print_persons_data(){
   if (person_data.size() == 0){
     Serial.print("Data_Base is empty\n");
