@@ -9,7 +9,19 @@ Key_Handler::Key_Handler(Data_Base* Data_base){
   data_base = Data_base;
   for (int i = 1; i<11; i++){
     key_map[i] = 0; // считаем что ключей нет
+    sum_signal_map[i] = 0;
   }
+
+  pin_map[1] = 34;
+  pin_map[2] = 35;
+  pin_map[3] = 32;
+  pin_map[4] = 33;
+  pin_map[5] = 25;
+  pin_map[6] = 26;
+  pin_map[7] = 27;
+  pin_map[8] = 14;
+  pin_map[9] = 12;
+  pin_map[10] = 13;
 }
 
 void Key_Handler::create_note(std::string uid, std::string action, std::string k_number){
@@ -61,7 +73,7 @@ bool Key_Handler::load_from_spiffs() {
         return false;
     }
     if (!SPIFFS.exists("/keys_notes.json")) {
-        Serial.println("Файл данных не найден");
+        // Serial.println("Файл данных не найден");
         SPIFFS.end();
         return false;
     }
@@ -154,4 +166,69 @@ bool Key_Handler::return_key(std::vector<uint8_t> UID, int key_number){
   key_map[key_number] = 1;
   std::string uidStr(UID.begin(), UID.end());
   create_note(uidStr, "return", std::to_string(key_number));
+}
+
+float Key_Handler::read_key_signal(int key_number) {
+  int sensorValue = analogRead(pin_map[key_number]);        // Чтение аналогового значения (0-1023)
+  return( sensorValue * (3.3 / 4095.0) );
+}
+
+void Key_Handler::check_keys(int check_time, int step){
+  for (int i = 0; i<check_time; i+=step){
+    for (int i = 1 ; i<11; i++){
+      sum_signal_map[i]+=read_key_signal(i);
+    }
+    delay(step);
+  }
+  for (int i = 1; i<6; i++){
+    if(sum_signal_map[i] >= 3.3*(check_time/step)*0.8){
+      if (key_map[i] == 0){
+        Serial.print(i);
+        Serial.print(") key_taking...\n");
+        take_key(buffered_UID, i);
+      }
+      key_map[i] = 1;
+    } else {
+      if (key_map[i] == 1){
+        Serial.print(i);
+        Serial.print(") key_returning...\n");
+        return_key(buffered_UID, i);
+      }
+      key_map[i] = 0;
+    }
+  }
+  for (int i = 6; i<11; i++){
+    if(sum_signal_map[i] <= 3.3*(check_time/step)*0.2){
+      if (key_map[i] == 0){
+        Serial.print(i);
+        Serial.print(") key_taking...\n");
+        take_key(buffered_UID, i);
+      }
+      key_map[i] = 1;
+    } else {
+      if (key_map[i] == 1){
+        Serial.print(i);
+        Serial.print(") key_returning...\n");
+        return_key(buffered_UID, i);
+      }
+      key_map[i] = 0;
+    }
+  }
+  for (int i = 1; i<11; i++){
+    sum_signal_map[i] = 0;
+  }
+}
+
+void Key_Handler::print_keys_status(){
+  for (int i = 1; i<11; i++){
+    Serial.print(i);
+    Serial.print(") ");
+    Serial.print(key_map[i]);
+    Serial.print(" | ");
+  }
+  Serial.print("\n");
+}
+
+void Key_Handler::set_current_UID(std::vector<uint8_t> UID){
+  buffered_UID = UID;
 }

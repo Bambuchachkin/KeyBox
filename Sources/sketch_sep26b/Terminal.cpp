@@ -73,8 +73,16 @@ void Terminal::process_check(std::string who){
     char new_char = ' ';
     while (new_char != '\n'){
       new_char = Serial.read();
-      readAnalogSignal(35); // перечисляем все порты с которых будем считывать сигнал
       readAnalogSignal(34);
+      readAnalogSignal(35); // перечисляем все порты с которых будем считывать сигнал
+      readAnalogSignal(32);
+      readAnalogSignal(33);
+      readAnalogSignal(25);
+      readAnalogSignal(26);
+      readAnalogSignal(27);
+      readAnalogSignal(14);
+      readAnalogSignal(12);
+      readAnalogSignal(13);
       Serial.print("press Enter to finish V-checking\n");
       delay(100);
     }
@@ -192,6 +200,8 @@ void Terminal::process_command(std::vector<std::string> commands){
 }
 
 std::vector<std::string> Terminal::read_command(){
+  key_handler.check_keys(10, 1);
+  // key_handler.print_keys_status();
   std::vector<std::string> commands;
   if (Serial.available()) {
     std::string command = "";
@@ -228,6 +238,7 @@ void Terminal::buffer_UID(std::vector<uint8_t>& new_UID){
     Serial.print(buffered_UID[i]);
     Serial.print(' ');
   }
+  key_handler.set_current_UID(buffered_UID);
   Serial.println();
 }
 

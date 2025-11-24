@@ -10,7 +10,10 @@
 
 class Key_Handler {
   Data_Base* data_base;
+  std::vector<uint8_t> buffered_UID;
   std::map<int, int> key_map; // 1 - на месте, 0 - отсутствует
+  std::map<int, int> pin_map;
+  std::map<int, float> sum_signal_map;
   std::map<unsigned long, std::string[3]> key_notes; // информация по ключам, int - время операции (взят, возвращен, выдан доступ), string - uid, тип операции, std::string - номер ключа
   unsigned long process_time;
 public:
@@ -28,6 +31,12 @@ public:
 
   bool take_key(std::vector<uint8_t> UID, int key_number);
   bool return_key(std::vector<uint8_t> UID, int key_number);
+
+  float read_key_signal(int key_number);
+  void check_keys(int check_time, int step);
+  void print_keys_status();
+
+  void set_current_UID(std::vector<uint8_t> UID);
 };
 
 #endif
