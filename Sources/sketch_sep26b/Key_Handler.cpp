@@ -22,13 +22,16 @@ Key_Handler::Key_Handler(Data_Base* Data_base){
   pin_map[8] = 14;
   pin_map[9] = 12;
   pin_map[10] = 13;
+  buffered_UID = {0};
 }
 
 void Key_Handler::create_note(std::string uid, std::string action, std::string k_number){
+  // Serial.print("create_note_START\n");
   process_time = (unsigned long)millis();
   key_notes[process_time][0] = uid;
   key_notes[process_time][1] = action;
   key_notes[process_time][2] = k_number;
+  // Serial.print("create_note_END\n");
 }
 
 
@@ -53,6 +56,7 @@ bool Key_Handler::save_to_spiffs() {
       note["uid"] = it->second[0].c_str();
       note["action"] = it->second[1].c_str();
       note["key_number"] = it->second[2].c_str();
+      notes[notes.length()] = note;
     }
     doc ["notes"] = notes;
     
@@ -128,6 +132,7 @@ bool Key_Handler::send_notes_to_PC(){
       note["uid"] = it->second[0].c_str();
       note["action"] = it->second[1].c_str();
       note["key_number"] = it->second[2].c_str();
+      notes[notes.length()] = note;
     }
     doc ["notes"] = notes;
     
@@ -152,8 +157,10 @@ bool Key_Handler::take_key(std::vector<uint8_t> UID, int key_number){
   std::string uidStr(UID.begin(), UID.end());
   if (data_base->get_status(UID, key_number)==-2){
     create_note(uidStr, "STEAL", std::to_string(key_number));
+  } else{
+    create_note(uidStr, "take", std::to_string(key_number));
   }
-  create_note(uidStr, "take", std::to_string(key_number));
+  return true;
 }
 
 bool Key_Handler::return_key(std::vector<uint8_t> UID, int key_number){
@@ -166,6 +173,7 @@ bool Key_Handler::return_key(std::vector<uint8_t> UID, int key_number){
   key_map[key_number] = 1;
   std::string uidStr(UID.begin(), UID.end());
   create_note(uidStr, "return", std::to_string(key_number));
+  return true;
 }
 
 float Key_Handler::read_key_signal(int key_number) {
@@ -184,15 +192,15 @@ void Key_Handler::check_keys(int check_time, int step){
     if(sum_signal_map[i] >= 3.3*(check_time/step)*0.8){
       if (key_map[i] == 0){
         Serial.print(i);
-        Serial.print(") key_taking...\n");
-        take_key(buffered_UID, i);
+        Serial.print(") key_returning...\n");
+        return_key(buffered_UID, i);
       }
       key_map[i] = 1;
     } else {
       if (key_map[i] == 1){
         Serial.print(i);
-        Serial.print(") key_returning...\n");
-        return_key(buffered_UID, i);
+        Serial.print(") key_taking...\n");
+        take_key(buffered_UID, i);
       }
       key_map[i] = 0;
     }
@@ -201,15 +209,15 @@ void Key_Handler::check_keys(int check_time, int step){
     if(sum_signal_map[i] <= 3.3*(check_time/step)*0.2){
       if (key_map[i] == 0){
         Serial.print(i);
-        Serial.print(") key_taking...\n");
-        take_key(buffered_UID, i);
+        Serial.print(") key_returning...\n");
+        return_key(buffered_UID, i);
       }
       key_map[i] = 1;
     } else {
       if (key_map[i] == 1){
         Serial.print(i);
-        Serial.print(") key_returning...\n");
-        return_key(buffered_UID, i);
+        Serial.print(") key_taking...\n");
+        take_key(buffered_UID, i);
       }
       key_map[i] = 0;
     }

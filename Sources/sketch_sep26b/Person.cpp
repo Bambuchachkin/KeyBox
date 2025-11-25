@@ -61,28 +61,27 @@ bool Person::check_key_access(int key_number){
     if(it->second == 1){
       Serial.print("Key is available\n");
       return true;
-    }
-  } else {
+    } else {
     Serial.print("Key isn`t available\n");
+    }
   }
   return false;
 }
 
 int Person::get_key_status(int key_number){
   auto it = keys.find(key_number);
-  if (it != keys.end()) {
-    if(it->second == 0){
-      Serial.print("Key isn`t available\n");
-      return 0;
-    } else if((it->second == 1)) {
-      Serial.print("Key is available\n");
-      return 1;
-    } else if ((it->second == 2)){
-      Serial.print("Key is in hands\n");
-      return 2;
-    } else {
-      Serial.print("Key is STOLEN\n");
-    }
+  if (it == keys.end()) {return 0;}
+  if(it->second == 0){
+    Serial.print("Key isn`t available\n");
+    return 0;
+  } else if((it->second == 1)) {
+    Serial.print("Key is available\n");
+    return 1;
+  } else if ((it->second == 2)){
+    Serial.print("Key is in hands\n");
+    return 2;
+  } else {
+    Serial.print("Key is STOLEN\n");
   }
   return -2;
 }
@@ -95,7 +94,7 @@ bool Person::take_key(int key_number){
     keys[key_number] = 2;
     Serial.print("Key is taken\n");
     return true;
-  } else if (keys[key_number] == 0){
+  } else /*if (keys[key_number] == 0)*/{
     keys[key_number] = -2;
     Serial.print("KEY IS STOLEN !!!\n");
   }
