@@ -42,6 +42,22 @@ void Terminal::process_info(std::vector<std::string> command){
   }
 }
 
+void Terminal::give_key_access(std::string new_user, std::string key_number){
+  if (!new_user.length()) return;
+  Serial.print("Try to give access to key number (");
+  Serial.print(key_number);
+  Serial.print(") to user number (");
+  Serial.print(new_user);
+  Serial.print(")\n");
+
+  int p_number = std::stoi(new_user);
+  int k_number = std::stoi(key_number);
+  if (data_base.give_access_by_number(p_number, k_number)){
+    Serial.print("Saccess\n");
+  }
+  Serial.print("Error, try to change numbers, or use 'help'\n");
+}
+
 // Функция для измерения уровня сигнала на аналоговом порту
 void readAnalogSignal(int pin_number) {
   int sensorValue = analogRead(pin_number);        // Чтение аналогового значения (0-1023)
@@ -98,6 +114,8 @@ void Terminal::process_help(){
   Serial.print("'delete [person number]' to view persons data\n");
   Serial.print("'info [ALL; person name]' to view persons data\n");
   Serial.print("'check [buffer; voltage]' to view sm\n");
+  Serial.print("'give [person number] [key_number]' to give access to key\n");
+  Serial.print("'remove [person number] [key_number]' to romove access to key\n");
   Serial.print("'START_JSON_UPLOAD' to upload data base\n");
 }
 
@@ -181,6 +199,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "delete"){
     process_delete(commands[1]);
+    return;
+  }
+  if (command == "give"){
+    process_give_key_access(commands[1], commands[2]);
     return;
   }
   if (command == "START_JSON_UPLOAD"){

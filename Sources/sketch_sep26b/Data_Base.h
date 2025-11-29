@@ -33,6 +33,8 @@ class Data_Base {
     bool give_access(std::vector<uint8_t> person_UID, int key_number);
     bool remove_access(std::vector<uint8_t> person_UID, int key_number);
     int get_status(std::vector<uint8_t> person_UID, int key_number);
+    bool give_access_by_number(int p_number, int key_number);
+    bool remove_access_by_number(int p_number, int key_number);
 
     void print_persons_data();
     void print_persons_data(std::string p_name);
