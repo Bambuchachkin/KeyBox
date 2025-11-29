@@ -29,6 +29,8 @@ class Terminal {
     void process_JSON_TEST();
     void process_JSON_SEND();
     void process_notes_send();
+    void process_give_key_access(std::string who, std::string what);
+    void process_remove_key_access(std::string who, std::string what);
 
     void process_command(std::vector<std::string> commands);
     void buffer_UID(std::vector<uint8_t>& new_UID);

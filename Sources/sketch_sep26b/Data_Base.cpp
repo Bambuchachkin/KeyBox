@@ -160,12 +160,12 @@ int Data_Base::get_status(std::vector<uint8_t> person_UID, int key_number){
   return person_data[person_UID]->get_key_status(key_number);
 }
 bool Data_Base::give_access_by_number(int p_number, int key_number){
-  if (person_data.find_person(p_number) == person_data.end()){ return false; }
-  return person_data.find_person(p_number).second->add_key_access(key_number);
+  if (find_person(p_number) == person_data.end()){ return false; }
+  return find_person(p_number)->second->add_key_access(key_number);
 }
 bool Data_Base::remove_access_by_number(int p_number, int key_number){
-  if (person_data.find_person(p_number) == person_data.end()){ return false; }
-  return person_data.find_person(p_number).second->remove_key_access(key_number);
+  if (find_person(p_number) == person_data.end()){ return false; }
+  return find_person(p_number)->second->remove_key_access(key_number);
 }
 
 void Data_Base::print_persons_data(){

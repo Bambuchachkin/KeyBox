@@ -42,17 +42,33 @@ void Terminal::process_info(std::vector<std::string> command){
   }
 }
 
-void Terminal::give_key_access(std::string new_user, std::string key_number){
+void Terminal::process_give_key_access(std::string new_user, std::string key_number){
   if (!new_user.length()) return;
   Serial.print("Try to give access to key number (");
-  Serial.print(key_number);
+  Serial.print(key_number.c_str());
   Serial.print(") to user number (");
-  Serial.print(new_user);
+  Serial.print(new_user.c_str());
   Serial.print(")\n");
 
   int p_number = std::stoi(new_user);
   int k_number = std::stoi(key_number);
   if (data_base.give_access_by_number(p_number, k_number)){
+    Serial.print("Saccess\n");
+  }
+  Serial.print("Error, try to change numbers, or use 'help'\n");
+}
+
+void Terminal::process_remove_key_access(std::string new_user, std::string key_number){
+  if (!new_user.length()) return;
+  Serial.print("Try to remove access to key number (");
+  Serial.print(key_number.c_str());
+  Serial.print(") to user number (");
+  Serial.print(new_user.c_str());
+  Serial.print(")\n");
+
+  int p_number = std::stoi(new_user);
+  int k_number = std::stoi(key_number);
+  if (data_base.remove_access_by_number(p_number, k_number)){
     Serial.print("Saccess\n");
   }
   Serial.print("Error, try to change numbers, or use 'help'\n");
@@ -203,6 +219,10 @@ void Terminal::process_command(std::vector<std::string> commands){
   }
   if (command == "give"){
     process_give_key_access(commands[1], commands[2]);
+    return;
+  }
+  if (command == "remove"){
+    process_remove_key_access(commands[1], commands[2]);
     return;
   }
   if (command == "START_JSON_UPLOAD"){
