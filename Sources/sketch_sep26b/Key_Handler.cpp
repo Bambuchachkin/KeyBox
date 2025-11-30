@@ -25,16 +25,6 @@ Key_Handler::Key_Handler(Data_Base* Data_base){
   buffered_UID = {0};
 }
 
-void Key_Handler::create_note(std::string uid, std::string action, std::string k_number){
-  // Serial.print("create_note_START\n");
-  process_time = (unsigned long)millis();
-  key_notes[process_time][0] = uid;
-  key_notes[process_time][1] = action;
-  key_notes[process_time][2] = k_number;
-  // Serial.print("create_note_END\n");
-}
-
-
 bool Key_Handler::save_to_spiffs() {
     if (!SPIFFS.begin(true)) {
         Serial.println("Ошибка инициализации SPIFFS");
@@ -113,8 +103,19 @@ bool Key_Handler::load_from_spiffs() {
         // key_notes[time][1] = note["action"];
     }
     Serial.print("Загружено записей из SPIFFS: ");
-    // Serial.println(personsLength);
+    Serial.println(notes.length());
     return true;
+}
+
+void Key_Handler::create_note(std::string uid, std::string action, std::string k_number){
+  // load_from_spiffs();
+  Serial.print("create_note_START\n");
+  process_time = (unsigned long)millis();
+  key_notes[process_time][0] = uid;
+  key_notes[process_time][1] = action;
+  key_notes[process_time][2] = k_number;
+  // Serial.print("create_note_END\n");
+  save_to_spiffs();
 }
 
 void Key_Handler::save_notes(){
@@ -143,14 +144,18 @@ bool Key_Handler::send_notes_to_PC(){
   Serial.println(output);
     
   Serial.print("END_OF_NOTES_SENDING");
+  key_notes.clear();
+  save_notes();
   return true;
 }
 
 bool Key_Handler::take_key(std::vector<uint8_t> UID, int key_number){
   if (key_map[key_number] == 0){
+    Serial.print("wtf, key_map[key_number] == 0\n");
     return false;
   }
   if (!data_base->take_key(UID, key_number)){
+    Serial.print("wtf, !data_base->take_key(UID, key_number)\n");
     return false;
   }
   key_map[key_number] = 0;
@@ -165,9 +170,11 @@ bool Key_Handler::take_key(std::vector<uint8_t> UID, int key_number){
 
 bool Key_Handler::return_key(std::vector<uint8_t> UID, int key_number){
   if (key_map[key_number] == 1){
+    Serial.print("wtf, key_map[key_number] == 1\n");
     return false;
   }
   if (!data_base->return_key(UID, key_number)){
+    Serial.print("!data_base->return_key(UID, key_number)\n");
     return false;
   }
   key_map[key_number] = 1;
@@ -239,4 +246,9 @@ void Key_Handler::print_keys_status(){
 
 void Key_Handler::set_current_UID(std::vector<uint8_t> UID){
   buffered_UID = UID;
+  Serial.print("KEY Buffered UID: ");
+  for (int i =0; i< buffered_UID.size(); i++){
+    Serial.print(buffered_UID[i]);
+    Serial.print(' ');
+  }
 }

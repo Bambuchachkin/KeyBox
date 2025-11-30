@@ -97,6 +97,7 @@ bool Person::take_key(int key_number){
   } else /*if (keys[key_number] == 0)*/{
     keys[key_number] = -2;
     Serial.print("KEY IS STOLEN !!!\n");
+    return true;
   }
   return false;
 }

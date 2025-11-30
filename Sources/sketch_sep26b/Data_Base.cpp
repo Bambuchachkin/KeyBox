@@ -140,11 +140,17 @@ bool Data_Base::delete_person(int p_number){
 }
 
 bool Data_Base::take_key(std::vector<uint8_t> person_UID, int key_number){
-  if (person_data.find(person_UID) == person_data.end()){ return false; }
+  if (person_data.find(person_UID) == person_data.end()){ 
+    Serial.print("This gay is noname\n");
+    return false;
+  }
   return person_data[person_UID]->take_key(key_number);
 }
 bool Data_Base::return_key(std::vector<uint8_t> person_UID, int key_number){
-  if (person_data.find(person_UID) == person_data.end()){ return false; }
+  if (person_data.find(person_UID) == person_data.end()){
+    Serial.print("This gay is noname\n");
+    return false;
+  }
   return person_data[person_UID]->return_key(key_number);
 }
 bool Data_Base::give_access(std::vector<uint8_t> person_UID, int key_number){

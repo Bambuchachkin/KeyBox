@@ -54,6 +54,8 @@ void Terminal::process_give_key_access(std::string new_user, std::string key_num
   int k_number = std::stoi(key_number);
   if (data_base.give_access_by_number(p_number, k_number)){
     Serial.print("Saccess\n");
+    data_base.save_Base();
+    return;
   }
   Serial.print("Error, try to change numbers, or use 'help'\n");
 }
@@ -69,7 +71,9 @@ void Terminal::process_remove_key_access(std::string new_user, std::string key_n
   int p_number = std::stoi(new_user);
   int k_number = std::stoi(key_number);
   if (data_base.remove_access_by_number(p_number, k_number)){
+    data_base.save_Base();
     Serial.print("Saccess\n");
+    return;
   }
   Serial.print("Error, try to change numbers, or use 'help'\n");
 }

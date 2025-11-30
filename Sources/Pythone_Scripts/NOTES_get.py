@@ -1,9 +1,10 @@
 import json
 import serial
 import pandas as pd
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 import re
+import os
 
 
 class ESP32ToExcel:
@@ -84,125 +85,161 @@ class ESP32ToExcel:
             return False
 
     def receive_json_data(self, timeout=30):
-        """Прием JSON данных от ESP32"""
+        """Прием JSON данных от ESP32 с гарантированным выходом по маркеру"""
         if not self.ser:
             print("Нет подключения к ESP32")
             return None
 
         print("Ожидание JSON данных от ESP32...")
 
-        json_data = ""
+        buffer = ""
         start_time = time.time()
         json_started = False
+        transmission_complete = False
 
-        while time.time() - start_time < timeout:
+        while time.time() - start_time < timeout and not transmission_complete:
             if self.ser.in_waiting > 0:
                 try:
                     line = self.ser.readline().decode('utf-8', errors='ignore').strip()
 
                     if line:
                         print(f"Получено: {line}")
+                        buffer += line + "\n"
 
-                        # Ищем начало JSON данных
-                        if line.startswith('{') or json_started:
+                        # Отслеживаем начало JSON данных
+                        if not json_started and ('{' in line or '[' in line):
                             json_started = True
-                            json_data += line
+                            print("Начало JSON данных обнаружено")
 
-                            # Проверяем, является ли собранная строка валидным JSON
-                            if self._is_valid_json(json_data):
-                                print("Валидный JSON получен!")
-                                return json_data
-
-                        # Проверяем конец передачи для notes
+                        # Проверяем маркер конца передачи - ВЫХОДИМ НЕМЕДЛЕННО
                         if "END_OF_NOTES_SENDING" in line:
-                            print("Получен маркер конца передачи notes")
-                            if self._is_valid_json(json_data):
-                                return json_data
+                            print("Получен маркер конца передачи notes - завершаем прием")
+                            transmission_complete = True
+                            break  # Немедленный выход из цикла
 
                 except Exception as e:
                     print(f"Ошибка чтения: {e}")
+            else:
+                # Короткая пауза если нет данных
+                time.sleep(0.05)
 
-            time.sleep(0.1)
-
-        print("Таймаут ожидания данных")
-        return None
-
-    def _is_valid_json(self, json_str):
-        """Проверка валидности JSON строки"""
-        try:
-            # Пытаемся найти JSON объект в строке
-            json_match = re.search(r'\{.*\}', json_str, re.DOTALL)
+        # Обрабатываем результат после выхода из цикла
+        if transmission_complete:
+            print("Передача завершена по маркеру")
+            # Извлекаем JSON из буфера
+            json_match = re.search(r'(\{.*\}|\[.*\])', buffer, re.DOTALL)
             if json_match:
-                json.loads(json_match.group())
-                return True
-            return False
-        except:
-            return False
+                return json_match.group()
+            else:
+                print("JSON не найден в полученных данных")
+                return None
+        else:
+            print("Таймаут ожидания данных")
+            return None
+
+    def _convert_uid_to_hex(self, uid_str):
+        """Конвертация UID из строки в hex формат 0x576E7A5B"""
+        try:
+            # Если UID уже в читаемом формате, возвращаем как есть
+            if all(c in '0123456789abcdefABCDEF' for c in uid_str.replace(' ', '').replace('0x', '')):
+                # Убираем пробелы и добавляем префикс 0x если его нет
+                clean_uid = uid_str.replace(' ', '').upper()
+                if not clean_uid.startswith('0x'):
+                    clean_uid = '0x' + clean_uid
+                return clean_uid
+
+            # Если это бинарные данные в строке, конвертируем в hex формат 0x576E7A5B
+            hex_bytes = []
+            for char in uid_str:
+                hex_bytes.append(f"{ord(char):02X}")
+
+            # Объединяем все байты в одну hex строку с префиксом 0x
+            hex_uid = '0x' + ''.join(hex_bytes)
+            return hex_uid
+
+        except Exception as e:
+            print(f"Ошибка конвертации UID '{uid_str}': {e}")
+            return uid_str
+
+    def _convert_millis_to_datetime(self, millis_str, connection_time):
+        """Конвертация миллисекунд millis() в реальное время"""
+        try:
+            millis = int(millis_str)
+
+            # Вычисляем реальное время: время подключения + прошедшие миллисекунды
+            real_time = connection_time + timedelta(milliseconds=millis)
+
+            return real_time.strftime("%Y-%m-%d %H:%M:%S")
+        except (ValueError, TypeError) as e:
+            print(f"Ошибка конвертации времени '{millis_str}': {e}")
+            return f"Ошибка времени: {millis_str}"
 
     def parse_notes_to_dataframe(self, json_data):
         """Парсинг JSON данных с записями и создание DataFrame"""
         try:
-            # Извлекаем JSON объект из строки
-            json_match = re.search(r'\{.*\}', json_data, re.DOTALL)
-            if not json_match:
-                print("JSON объект не найден в полученных данных")
-                return None
+            # Запоминаем время подключения для вычисления реального времени
+            connection_time = datetime.now()
 
-            clean_json = json_match.group()
-            data = json.loads(clean_json)
+            if not json_data or json_data.strip() == "":
+                print("Получены пустые данные")
+                return pd.DataFrame()  # Возвращаем пустой DataFrame
 
+            data = json.loads(json_data)
             table_data = []
 
-            if "notes" in data:
+            if "notes" in data and data["notes"]:
                 for note in data["notes"]:
                     # Парсим данные записи
-                    time_str = note.get("time", "")
+                    millis_str = note.get("time", "")
                     uid = note.get("uid", "")
                     action = note.get("action", "")
                     key_number = note.get("key_number", "")
 
-                    # Преобразуем время из timestamp в читаемый формат
-                    readable_time = self._convert_timestamp(time_str)
+                    # Преобразуем UID в hex формат 0x576E7A5B
+                    readable_uid = self._convert_uid_to_hex(uid)
 
-                    # Создаем строку таблицы
+                    # Преобразуем миллисекунды в реальное время
+                    readable_time = self._convert_millis_to_datetime(millis_str, connection_time)
+
+                    # Создаем строку таблицы (ТОЛЬКО реальное время, без timestamp)
                     row = {
-                        "timestamp": time_str,
                         "datetime": readable_time,
-                        "uid": uid,
+                        "uid": readable_uid,
                         "action": action,
                         "key_number": key_number
                     }
-
                     table_data.append(row)
 
-            # Создаем DataFrame и сортируем по времени (от старых к новым)
+                    print(f"Запись: время={readable_time}, UID={readable_uid}, действие={action}, ключ={key_number}")
+
+                print(f"Найдено {len(table_data)} записей")
+            else:
+                print("В JSON нет записей или пустой массив notes")
+
+            # Создаем DataFrame и сортируем по времени
             df = pd.DataFrame(table_data)
             if not df.empty:
-                df = df.sort_values('timestamp').reset_index(drop=True)
+                # Сортируем по времени
+                df = df.sort_values('datetime').reset_index(drop=True)
 
             return df
 
+        except json.JSONDecodeError as e:
+            print(f"Ошибка декодирования JSON: {e}")
+            print(f"Полученные данные: {json_data}")
+            return None
         except Exception as e:
             print(f"Ошибка парсинга JSON notes: {e}")
             return None
-
-    def _convert_timestamp(self, timestamp_str):
-        """Конвертация timestamp в читаемое время"""
-        try:
-            # Пытаемся преобразовать строку в число
-            timestamp = int(timestamp_str)
-            # Конвертируем в читаемый формат
-            dt = datetime.fromtimestamp(timestamp)
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-        except (ValueError, TypeError, OSError):
-            # Если не удалось преобразовать, возвращаем оригинальную строку
-            return timestamp_str
 
     def save_notes_to_excel(self, dataframe, filename=None):
         """Сохранение данных записей в Excel файл"""
         if dataframe is None or dataframe.empty:
             print("Нет данных записей для сохранения")
             return False
+
+        # Создаем директорию если не существует
+        os.makedirs("./received_data", exist_ok=True)
 
         if not filename:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -219,11 +256,10 @@ class ESP32ToExcel:
 
                 # Устанавливаем ширину колонок для лучшего отображения
                 column_widths = {
-                    'A': 15,   # timestamp
-                    'B': 20,   # datetime
-                    'C': 20,   # uid
-                    'D': 15,   # action
-                    'E': 12    # key_number
+                    'A': 20,  # datetime
+                    'B': 15,  # uid (теперь короче, т.к. формат 0x576E7A5B)
+                    'C': 15,  # action
+                    'D': 12  # key_number
                 }
 
                 for col, width in column_widths.items():
@@ -250,6 +286,7 @@ class ESP32ToExcel:
             print("Отправка запроса записей на ESP32...")
             self.ser.write(b"GET_NOTES\n")
             self.ser.flush()
+            time.sleep(1)  # Даем время на обработку команды
             return True
         except Exception as e:
             print(f"Ошибка отправки запроса записей: {e}")
@@ -296,6 +333,8 @@ def main():
         else:
             print("Не удалось отправить запрос записей на ESP32")
 
+    except KeyboardInterrupt:
+        print("\nПрервано пользователем")
     except Exception as e:
         print(f"Ошибка в основном процессе: {e}")
 
