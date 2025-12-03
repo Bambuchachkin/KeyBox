@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include <ESP32Servo.h>
 
 #include "Data_Base.h"
 #include "Json_Handler.h"
@@ -17,6 +18,7 @@ class Terminal {
     Key_Handler key_handler;
     // std::map<std::string, std::string> HELP;
     std::string mode = "default";
+    Servo myServo;
   public:
     Terminal();
     ~Terminal();
@@ -35,6 +37,9 @@ class Terminal {
     void process_command(std::vector<std::string> commands);
     void buffer_UID(std::vector<uint8_t>& new_UID);
     std::vector<std::string> read_command();
+
+    void door_open();
+    void door_close();
 
     // Добавляем методы для работы с сохранением
     bool load_data();

@@ -2,7 +2,11 @@
 #include <Arduino.h>
 #include "Terminal.h"
 
+// #define SERVO_PIN 22
+
 Terminal::Terminal() : json_handler(&data_base), key_handler(&data_base){
+  myServo.setPeriodHertz(50);
+  // myServo.attach(22, 500, 2400);
   Serial.print("Terminal::Terminal()\n");
 }
 
@@ -117,7 +121,7 @@ void Terminal::process_check(std::string who){
       readAnalogSignal(26);
       readAnalogSignal(27);
       readAnalogSignal(14);
-      readAnalogSignal(12);
+      readAnalogSignal(4); //12
       readAnalogSignal(13);
       Serial.print("press Enter to finish V-checking\n");
       delay(100);
@@ -274,6 +278,24 @@ std::vector<std::string> Terminal::read_command(){
   return commands;
 }
 
+void Terminal::door_open(){
+  myServo.attach(22, 500, 2400);
+  myServo.write(0);
+  // myServo.writeMicroseconds(400);
+  delay(250); //200
+  myServo.detach();
+  delay(300);
+}
+
+void Terminal::door_close(){
+  myServo.attach(22, 500, 2400);
+  myServo.write(180);
+  // myServo.writeMicroseconds(800);
+  delay(200);
+  myServo.detach(); 
+  delay(300);
+}
+
 void Terminal::buffer_UID(std::vector<uint8_t>& new_UID){
   buffered_UID.clear();
   for (int i =0; i< new_UID.size(); i++){
@@ -285,6 +307,11 @@ void Terminal::buffer_UID(std::vector<uint8_t>& new_UID){
     Serial.print(' ');
   }
   key_handler.set_current_UID(buffered_UID);
+  if (data_base.check_door_access(buffered_UID)){
+    door_open();
+    // delay(500);
+    door_close();
+  }
   Serial.println();
 }
 

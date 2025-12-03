@@ -13,6 +13,7 @@ class Person {
     int p_number;
     static int P_NUMBER;
     std::map<int, int> keys;
+    int number_of_accessable_keys = 0;
   public:
     Person(std::vector<uint8_t> person_UID);
     ~Person();
@@ -27,6 +28,7 @@ class Person {
     bool remove_key_access(int key_number);
 
     bool check_key_access(int key_number);
+    bool check_door_access();
 
     int get_key_status(int key_number); // 0 - inaccessible; 1 - in place; 2 - in users hands
 

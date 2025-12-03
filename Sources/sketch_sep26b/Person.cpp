@@ -38,6 +38,9 @@ int Person::get_person_number(){
 }
 
 bool Person::add_key_access(int key_number){
+  if (keys[key_number] == 0){
+    number_of_accessable_keys++;
+  }
   keys[key_number] = 1;
   // Serial.print("Access was given\n");
   return true;
@@ -47,6 +50,7 @@ bool Person::remove_key_access(int key_number){
   auto it = keys.find(key_number);
   if (it != keys.end()) {
     it->second = 0;
+    number_of_accessable_keys--;
     Serial.print("Access removed\n");
     return true;
   } else {
@@ -64,6 +68,13 @@ bool Person::check_key_access(int key_number){
     } else {
     Serial.print("Key isn`t available\n");
     }
+  }
+  return false;
+}
+
+bool Person::check_door_access(){
+  if (number_of_accessable_keys>0){
+    return true;
   }
   return false;
 }

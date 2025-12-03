@@ -4,7 +4,7 @@
 Servo myServo;
 
 // Пин для подключения сигнального провода сервопривода
-#define SERVO_PIN 25
+#define SERVO_PIN 22
 
 void setup() {
   // Привязываем сервопривод к пину

@@ -20,7 +20,7 @@ Key_Handler::Key_Handler(Data_Base* Data_base){
   pin_map[6] = 26;
   pin_map[7] = 27;
   pin_map[8] = 14;
-  pin_map[9] = 12;
+  pin_map[9] = 4; // был = 12
   pin_map[10] = 13;
   buffered_UID = {0};
 }

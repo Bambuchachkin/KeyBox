@@ -173,6 +173,10 @@ bool Data_Base::remove_access_by_number(int p_number, int key_number){
   if (find_person(p_number) == person_data.end()){ return false; }
   return find_person(p_number)->second->remove_key_access(key_number);
 }
+bool Data_Base::check_door_access(std::vector<uint8_t> person_UID){
+  if (find_person(person_UID) == person_data.end()){ return false; }
+  return find_person(person_UID)->second->check_door_access();
+}
 
 void Data_Base::print_persons_data(){
   if (person_data.size() == 0){

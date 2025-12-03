@@ -35,6 +35,7 @@ class Data_Base {
     int get_status(std::vector<uint8_t> person_UID, int key_number);
     bool give_access_by_number(int p_number, int key_number);
     bool remove_access_by_number(int p_number, int key_number);
+    bool check_door_access(std::vector<uint8_t> person_UID);
 
     void print_persons_data();
     void print_persons_data(std::string p_name);
