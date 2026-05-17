@@ -18,10 +18,14 @@
 5. ✅ Спроектирована база данных пользователей
 6. ✅ Налажена работа с таблицами формата .xlsx для удобства работы с устройством
 7. ✅ Разработаны методы работы с устройством с помощью консоли
-8. *30.11.2025 Финальная сборка не закончена по причине нахождения электронных компонентов на другом конце Москвы от корпуса устройства (сборка будет завершена в ближайшее время)
+8. ✅ Разработано и произведено функциональное устройство
 
-![Отрисовка карты.](Documents/Images/final_box.jpg)
-![Отрисовка карты.](Documents/Images/final_circuit.jpg)
+<p align="center">
+  <img src="Documents/Images/Box_1.jpg" alt="ESP32 Tetris Console" width="500">
+</p>
+<p align="center">
+  <img src="Documents/Images/Box_2.jpg" alt="ESP32 Tetris Console" width="500">
+</p>
 
 ### Решенные проблемы: 🔧
 В процессе работы возникали проблемы различного уровня сложности. Среди наиболее острых, но разрешенных оказались:
@@ -38,9 +42,12 @@
 
 ### Принципиальная схема цепи и взаимодействия ее компонент:
 
-![Отрисовка карты.](Documents/Images/Scheme.png)
-
-![Отрисовка карты.](Documents/Images/Logic.png)
+<p align="center">
+  <img src="Documents/Images/Scheme.png" alt="ESP32 Tetris Console" width="500">
+</p>
+<p align="center">
+  <img src="Documents/Images/Logic.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 ## Ход работы
 
@@ -59,59 +66,76 @@
 
 ### Взаимодействие с картой:
 Общение с картами будет осуществлятся при помощи считывателя RC522.
+<p align="center">
+  <img src="Documents/Images/Logic.png" alt="ESP32 Tetris Console" width="500">
+</p>
 ![Отрисовка карты.](Documents/Images/RC522.png)
 
 ### Работа в материале
 
 Схема работы детектирующего устройства:
-![Отрисовка карты.](Documents/Images/Hook.png)
-
-Модель крюка:
-![Отрисовка карты.](Documents/Images/Hook.jpg)
-
-Модель штифта:
-![Отрисовка карты.](Documents/Images/IceCream.jpg)
-
-Модель базы для установки крюка:
-![Отрисовка карты.](Documents/Images/Base.jpg)
+<p align="center">
+  <img src="Documents/Images/Hook.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Модель корпуса ключницы:
-![Отрисовка карты.](Documents/Images/Box.jpg)
+<p align="center">
+  <img src="Documents/Images/Box.jpg" alt="ESP32 Tetris Console" width="500">
+</p>
 
 ### Написание кода
 Реализация взаимодействия с RC522:
-![Отрисовка карты.](Documents/Images/RFID.png)
+<p align="center">
+  <img src="Documents/Images/RFID.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Реализация обработки команд с консоли:
-![Отрисовка карты.](Documents/Images/ProcessCommand.png)
+<p align="center">
+  <img src="Documents/Images/ProcessCommand.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Реализация работы с пользователями:
-![Отрисовка карты.](Documents/Images/Users.png)
+<p align="center">
+  <img src="Documents/Images/Users.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Разработка структуры хранения данных:
-![Отрисовка карты.](Documents/Images/Table.png)
+<p align="center">
+  <img src="Documents/Images/Table.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Реализация чтения и записи данных в таблицу (тестовые отправки):
-![Отрисовка карты.](Documents/Images/json_exchange.png)
+<p align="center">
+  <img src="Documents/Images/json_exchange.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Реализация хранения и восстановления данных из постоянной памяти:
-![Отрисовка карты.](Documents/Images/data_recovery.png)
+<p align="center">
+  <img src="Documents/Images/data_recovery.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
-Добавлен кармашек для  зажима микропереключателя:
+<!-- Добавлен кармашек для  зажима микропереключателя:
 <img width="1541" height="1035" alt="image" src="https://github.com/user-attachments/assets/2c278192-2b9a-40d1-a9de-ddc6e570d0b0" />
 
 Доработана основная платформа для закрепления кармашка в ней, так же увеличен радиус отерстия для пружинки:
-<img width="1212" height="1104" alt="image" src="https://github.com/user-attachments/assets/5a2353b9-1f5b-4b1b-9aa3-503ce4ea96b2" />
+<img width="1212" height="1104" alt="image" src="https://github.com/user-attachments/assets/5a2353b9-1f5b-4b1b-9aa3-503ce4ea96b2" /> -->
 
 Сделан корпус из дерева (дополнительные отверстия будут делаться на физтех-фабрике)
-<img width="767" height="1207" alt="image" src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" />
-
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" alt="ESP32 Tetris Console" width="500">
+</p>
+<!-- <img width="767" height="1207" alt="image" src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" /> -->
+<!-- 
 Реализация чтения данных пользователей из таблицы (предитоговая версия):
-![Отрисовка карты.](Documents/Images/json_read.png)
+![Отрисовка карты.](Documents/Images/json_read.png) -->
 
 
 Окончательная реализация чтения данных пользователей из таблицы:
-![Отрисовка карты.](Documents/Images/json_read_final.png)
+<p align="center">
+  <img src="Documents/Images/json_read_final.png" alt="ESP32 Tetris Console" width="500">
+</p>
 
 Сборка и тестирование 2ух узлов схемы + отладка кода:
-![Отрисовка карты.](Documents/Images/Test_Circuit.jpg)
+<p align="center">
+  <img src="Documents/Images/Test_Circuit.jpg" alt="ESP32 Tetris Console" width="500">
+</p>
