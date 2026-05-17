@@ -86,6 +86,15 @@
   <img src="Documents/Images/Box.jpg" alt="ESP32 Tetris Console" width="500">
 </p>
 
+Сделан корпус из дерева (дополнительные отверстия будут делаться на физтех-фабрике)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" alt="ESP32 Tetris Console" width="500">
+</p>
+<!-- <img width="767" height="1207" alt="image" src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" /> -->
+<!-- 
+Реализация чтения данных пользователей из таблицы (предитоговая версия):
+![Отрисовка карты.](Documents/Images/json_read.png) -->
+
 ### Написание кода
 Реализация взаимодействия с RC522:
 <p align="center">
@@ -122,15 +131,6 @@
 
 Доработана основная платформа для закрепления кармашка в ней, так же увеличен радиус отерстия для пружинки:
 <img width="1212" height="1104" alt="image" src="https://github.com/user-attachments/assets/5a2353b9-1f5b-4b1b-9aa3-503ce4ea96b2" /> -->
-
-Сделан корпус из дерева (дополнительные отверстия будут делаться на физтех-фабрике)
-<p align="center">
-  <img src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" alt="ESP32 Tetris Console" width="500">
-</p>
-<!-- <img width="767" height="1207" alt="image" src="https://github.com/user-attachments/assets/810f8d19-dff7-42e2-9041-3b519ff64c55" /> -->
-<!-- 
-Реализация чтения данных пользователей из таблицы (предитоговая версия):
-![Отрисовка карты.](Documents/Images/json_read.png) -->
 
 
 Окончательная реализация чтения данных пользователей из таблицы:
