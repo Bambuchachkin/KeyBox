@@ -69,7 +69,10 @@
 <p align="center">
   <img src="Documents/Images/Logic.png" alt="ESP32 Tetris Console" width="500">
 </p>
-![Отрисовка карты.](Documents/Images/RC522.png)
+<p align="center">
+  <img src="Documents/Images/RC522.png" alt="ESP32 Tetris Console" width="500">
+</p>
+<!-- ![Отрисовка карты.](Documents/Images/RC522.png) -->
 
 ### Работа в материале
 
